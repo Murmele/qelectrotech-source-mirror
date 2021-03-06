@@ -40,7 +40,9 @@ class QGraphicsSceneMouseEvent;
 */
 class CustomElementPart: public PropertiesInterface {
 	// constructors, destructor
+
 	public:
+
 	/**
 		@brief CustomElementPart
 		Constructor
@@ -52,6 +54,12 @@ class CustomElementPart: public PropertiesInterface {
 		Destructor
 	*/
 	virtual ~CustomElementPart() {}
+
+    enum class Type {
+        ElementGraphics,
+        Text,
+    };
+    virtual Type elementType() = 0;
 	
 	private:
 	CustomElementPart(const CustomElementPart &);

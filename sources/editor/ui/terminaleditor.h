@@ -51,7 +51,7 @@ class TerminalEditor : public ElementItemEditor
 		void nameEdited();
 		void typeEdited();
 		void activeConnections(bool active);
-		void activeChangeConnections(bool active);
+        void setUpChangeConnectionsPriv() override;
 
     private:
         Ui::TerminalEditor *ui;

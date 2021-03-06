@@ -62,8 +62,7 @@ class RectangleEditor : public ElementItemEditor
 			\brief setUpChangeConnections
 			Setup the connection from the rectangles(s) to the widget, to update it when the rectangles(s) are changed (moved ...)
 	*/
-	void setUpChangeConnections();
-	void disconnectChangeConnections();
+    void setUpChangeConnectionsPriv() override;
 	
 	private:
 	bool m_locked = false;

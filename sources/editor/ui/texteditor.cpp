@@ -70,22 +70,14 @@ void TextEditor::updateFormPriv()
 	setUpEditConnection();
 }
 
-void TextEditor::setUpChangeConnection(QPointer<PartText> part) {
-	assert(m_change_connection.isEmpty());
-	m_change_connection << connect(part, &PartText::plainTextChanged, this, &TextEditor::updateForm);
-	m_change_connection << connect(part, &PartText::xChanged,         this, &TextEditor::updateForm);
-	m_change_connection << connect(part, &PartText::yChanged,         this, &TextEditor::updateForm);
-	m_change_connection << connect(part, &PartText::rotationChanged,  this, &TextEditor::updateForm);
-	m_change_connection << connect(part, &PartText::fontChanged,      this, &TextEditor::updateForm);
-	m_change_connection << connect(part, &PartText::colorChanged,     this, &TextEditor::updateForm);
-}
-
-void TextEditor::disconnectChangeConnection()
+void TextEditor::setUpChangeConnectionsPriv()
 {
-	for (QMetaObject::Connection c : m_change_connection) {
-		disconnect(c);
-	}
-	m_change_connection.clear();
+    m_change_connection << connect(m_text, &PartText::plainTextChanged, this, &TextEditor::updateForm);
+    m_change_connection << connect(m_text, &PartText::xChanged,         this, &TextEditor::updateForm);
+    m_change_connection << connect(m_text, &PartText::yChanged,         this, &TextEditor::updateForm);
+    m_change_connection << connect(m_text, &PartText::rotationChanged,  this, &TextEditor::updateForm);
+    m_change_connection << connect(m_text, &PartText::fontChanged,      this, &TextEditor::updateForm);
+    m_change_connection << connect(m_text, &PartText::colorChanged,     this, &TextEditor::updateForm);
 }
 
 void TextEditor::disconnectEditConnection()
@@ -106,7 +98,7 @@ void TextEditor::disconnectEditConnection()
 bool TextEditor::setPart(CustomElementPart *part) {
 	if (!part) {
 		m_text = nullptr;
-		disconnectChangeConnection();
+        disconnectChangeConnections();
 		return true;
 	}
 
@@ -115,7 +107,7 @@ bool TextEditor::setPart(CustomElementPart *part) {
 			return true;
 		}
 		m_text = part_text;
-		setUpChangeConnection(m_text);
+        setUpChangeConnections();
 		updateForm();
 		return true;
 	}
@@ -126,7 +118,7 @@ bool TextEditor::setParts(QList <CustomElementPart *> parts) {
 	if (parts.isEmpty()) {
 		m_parts.clear();
 		if (m_text) {
-			disconnectChangeConnection();
+            disconnectChangeConnections();
 		}
 		m_text = nullptr;
 		return true;
@@ -134,7 +126,7 @@ bool TextEditor::setParts(QList <CustomElementPart *> parts) {
 
 	if (PartText *part = static_cast<PartText *>(parts.first())) {
 		if (m_text) {
-			disconnectChangeConnection();
+            disconnectChangeConnections();
 		}
 		m_text = part;
 		m_parts.clear();
@@ -142,7 +134,7 @@ bool TextEditor::setParts(QList <CustomElementPart *> parts) {
 		for (int i=1; i < parts.length(); i++) {
 			m_parts.append(static_cast<PartText*>(parts[i]));
 		}
-		setUpChangeConnection(m_text);
+        setUpChangeConnections();
 		updateForm();
 		return true;
 	}
@@ -372,5 +364,6 @@ void TextEditor::setUpWidget(QWidget *parent)
 	    QSpacerItem *verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
 	    gridLayout->addItem(verticalSpacer, 3, 2, 1, 1);
-	    setLayout(gridLayout);
+
+        editorWidget()->setLayout(gridLayout);
 }

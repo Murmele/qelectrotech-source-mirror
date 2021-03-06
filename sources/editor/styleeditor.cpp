@@ -401,7 +401,9 @@ StyleEditor::StyleEditor(QETElementEditor *editor, CustomElementGraphicPart *p, 
 
 	main_layout -> addSpacing(10);
 	main_layout -> addWidget(new QLabel("<u>" + tr("Géométrie :") + "</u> "));
-	setLayout(main_layout);
+
+    QWidget* w = new QWidget(editorWidget());
+    w->setLayout(main_layout);
 }
 
 /// Destructeur

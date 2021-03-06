@@ -46,8 +46,7 @@ class LineEditor : public ElementItemEditor
         void updateFormPriv()                                override;
 
 	private:
-		void setUpChangeConnections();
-		void disconnectChangeConnections();
+        void setUpChangeConnectionsPriv() override;
 		void activeConnection(bool active);
 
 		void lineEdited();

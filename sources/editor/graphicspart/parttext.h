@@ -39,6 +39,11 @@ class PartText : public QGraphicsTextItem, public CustomElementPart {
 		void fontChanged(const QFont &font);
 		void colorChanged(const QColor &color);
 		void plainTextChanged(const QString &text);
+        /*!
+         * \brief userPropertiesChanged
+         * \param name: Property which changed. If QString is empty, all userProperties changed
+         */
+        void userPropertiesChanged(const QString& name);
 
 		// constructors, destructor
 	public:
@@ -57,6 +62,7 @@ class PartText : public QGraphicsTextItem, public CustomElementPart {
 			@return the QGraphicsItem type
 		*/
 		int type() const override { return Type; }
+        virtual CustomElementPart::Type elementType() override {return CustomElementPart::Type::Text;};
 		QString name() const override { return(QObject::tr("texte", "element part name")); }
 		QString xmlName() const override { return(QString("text")); }
 		bool fromXmlPriv(const QDomElement &) override;

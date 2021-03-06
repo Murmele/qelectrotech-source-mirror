@@ -66,7 +66,7 @@ class PartDynamicTextField : public QGraphicsTextItem, public CustomElementPart
 
 		enum {Type = UserType + 1110};
 		int type() const override {return Type;}
-
+		virtual CustomElementPart::Type elementType() override {return CustomElementPart::Type::Text;};
 		QString name() const override;
 		QString xmlName() const override;
 		static QString xmlTaggName() {return QString("dynamic_text");}
@@ -106,6 +106,13 @@ class PartDynamicTextField : public QGraphicsTextItem, public CustomElementPart
 		void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 		QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
 		void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+
+signals:
+	/*!
+	* \brief userPropertiesChanged
+	* \param name: Property which changed. If QString is empty, all userProperties changed
+	*/
+	void userPropertiesChanged(const QString& name);
 
 	private:
 		void elementInfoChanged();

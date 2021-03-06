@@ -38,7 +38,6 @@ class TextEditor : public ElementItemEditor {
 		explicit TextEditor(QETElementEditor *editor,  PartText *text = nullptr, QWidget *parent = nullptr);
 		~TextEditor() override;
 
-        void updateFormPriv() override;
 		bool setPart(CustomElementPart *part) override;
 		bool setParts(QList <CustomElementPart *>) override;
 		CustomElementPart *currentPart() const override;
@@ -50,8 +49,8 @@ class TextEditor : public ElementItemEditor {
 	private:
 		void setUpWidget(QWidget* parent = nullptr);
 		void setUpEditConnection();
-		void setUpChangeConnection(QPointer<PartText> part);
-		void disconnectChangeConnection();
+        void updateFormPriv() override;
+        void setUpChangeConnectionsPriv() override;
 		void disconnectEditConnection();
 
 	private:

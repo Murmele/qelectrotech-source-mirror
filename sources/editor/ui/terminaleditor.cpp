@@ -32,7 +32,8 @@ TerminalEditor::TerminalEditor(QETElementEditor *editor, QWidget *parent) :
 	ElementItemEditor(editor, parent),
 	ui(new Ui::TerminalEditor)
 {
-	ui->setupUi(this);
+
+    ui->setupUi(editorWidget());
 	init();
 }
 
@@ -79,7 +80,7 @@ bool TerminalEditor::setPart(CustomElementPart *new_part)
 		return true;
 	}
 
-	activeChangeConnections(false);
+    disconnectChangeConnections();
 
 	if (!new_part)
 	{
@@ -91,7 +92,7 @@ bool TerminalEditor::setPart(CustomElementPart *new_part)
 	{
 		m_part = part_terminal;
 		updateForm();
-		activeChangeConnections(true);
+        setUpChangeConnections();
 		return(true);
 	}
 	return(false);
@@ -236,19 +237,11 @@ void TerminalEditor::activeConnections(bool active)
 	}
 }
 
-void TerminalEditor::activeChangeConnections(bool active)
+void TerminalEditor::setUpChangeConnectionsPriv()
 {
-	if (active)
-	{
-		m_change_connections << connect(m_part, &PartTerminal::xChanged, this, &TerminalEditor::updateForm);
-		m_change_connections << connect(m_part, &PartTerminal::yChanged, this, &TerminalEditor::updateForm);
-		m_change_connections << connect(m_part, &PartTerminal::orientationChanged, this, &TerminalEditor::updateForm);
-		m_change_connections << connect(m_part, &PartTerminal::nameChanged, this, &TerminalEditor::updateForm);
-		m_change_connections << connect(m_part, &PartTerminal::terminalTypeChanged, this, &TerminalEditor::updateForm);
-	} else {
-		for (auto &con : m_change_connections) {
-			QObject::disconnect(con);
-		}
-		m_change_connections.clear();
-	}
+    m_change_connections << connect(m_part, &PartTerminal::xChanged, this, &TerminalEditor::updateForm);
+    m_change_connections << connect(m_part, &PartTerminal::yChanged, this, &TerminalEditor::updateForm);
+    m_change_connections << connect(m_part, &PartTerminal::orientationChanged, this, &TerminalEditor::updateForm);
+    m_change_connections << connect(m_part, &PartTerminal::nameChanged, this, &TerminalEditor::updateForm);
+    m_change_connections << connect(m_part, &PartTerminal::terminalTypeChanged, this, &TerminalEditor::updateForm);
 }

@@ -50,8 +50,7 @@ class DynamicTextFieldEditor : public ElementItemEditor {
 	private:
 		void setupWidget();
 		void fillInfoComboBox();
-		void setUpConnections();
-		void disconnectConnections();
+        void setUpChangeConnectionsPriv() override;
 
 	private slots:
 		void on_m_x_sb_editingFinished();

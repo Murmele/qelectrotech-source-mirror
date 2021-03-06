@@ -53,8 +53,7 @@ class EllipseEditor : public ElementItemEditor
 
 	private:
 		void updateRect();
-		void setUpChangeConnections();
-		void disconnectChangeConnections();
+        void setUpChangeConnectionsPriv() override;
 
 	private:
 		Ui::EllipseEditor *ui;

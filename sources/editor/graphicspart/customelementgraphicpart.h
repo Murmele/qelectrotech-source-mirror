@@ -267,7 +267,7 @@ class CustomElementGraphicPart : public QGraphicsObject, public CustomElementPar
 		CustomElementGraphicPart(QETElementEditor *editor,
 					 QGraphicsItem *parent = nullptr);
 		~CustomElementGraphicPart() override;
-
+        virtual CustomElementPart::Type elementType() override {return CustomElementPart::Type::ElementGraphics;};
 		static void drawCross (const QPointF &center,
 					   QPainter *painter);
 
@@ -289,6 +289,15 @@ class CustomElementGraphicPart : public QGraphicsObject, public CustomElementPar
 		void setAntialiased(const bool b);
 			//End of getter and setter
 
+        /* User Properties */
+        void setUserProperty(const QString& name, const QVariant& value);
+        QVariant getUserProperty(const QString& name) const;
+        /*!
+         * \brief getUserProperties
+         * \return
+         */
+        QHashIterator<QString, QVariant> getUserProperties() const;
+
 
 			//Rediriged to QObject Q_PROPERTY system
 		void setProperty (const char *name,
@@ -301,6 +310,13 @@ class CustomElementGraphicPart : public QGraphicsObject, public CustomElementPar
 		virtual void setHandlerColor(QPointF /*pos*/,
 						 const QColor &/*color*/) {}
 		virtual void resetAllHandlerColor() {}
+
+    signals:
+        /*!
+         * \brief userPropertiesChanged
+         * \param name: Property which changed. If QString is empty, all userProperties changed
+         */
+        void userPropertiesChanged(QString name);
 
 	protected:
         void stylesToXml  (QDomElement &) const;

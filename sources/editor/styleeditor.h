@@ -70,5 +70,6 @@ class StyleEditor : public ElementItemEditor
 	private:
 		void activeConnections(bool);
 		void makeUndo(const QString &undo_text, const char *property_name, const QVariant &new_value);
+        virtual void setUpChangeConnectionsPriv() override {};
 };
 #endif

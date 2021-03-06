@@ -39,7 +39,7 @@ DynamicTextFieldEditor::DynamicTextFieldEditor(QETElementEditor *editor,
 	ElementItemEditor(editor, parent),
 	ui(new Ui::DynamicTextFieldEditor)
 {
-	ui -> setupUi(this);
+    ui -> setupUi(editorWidget());
 	ui -> m_composite_text_pb -> setDisabled(true);
 	ui -> m_elmt_info_cb -> setDisabled(true);
 	setupWidget();
@@ -65,7 +65,7 @@ DynamicTextFieldEditor::~DynamicTextFieldEditor()
 	@return true if part can be edited by this widget
 */
 bool DynamicTextFieldEditor::setPart(CustomElementPart *part) {
-	disconnectConnections();
+    disconnectChangeConnections();
 
 	QGraphicsItem *qgi = part -> toItem();
 	if(!qgi) {
@@ -77,7 +77,7 @@ bool DynamicTextFieldEditor::setPart(CustomElementPart *part) {
 
 	m_text_field = static_cast<PartDynamicTextField *>(qgi);
 	updateForm();
-	setUpConnections();
+    setUpChangeConnections();
 	fillInfoComboBox();
 	return true;
 }
@@ -86,7 +86,7 @@ bool DynamicTextFieldEditor::setParts(QList <CustomElementPart *> parts) {
 	if (parts.isEmpty()) {
 		m_parts.clear();
 		if (m_text_field) {
-			disconnectConnections();
+            disconnectChangeConnections();
 		}
 		m_text_field = nullptr;
 		return true;
@@ -94,7 +94,7 @@ bool DynamicTextFieldEditor::setParts(QList <CustomElementPart *> parts) {
 
 	if (PartDynamicTextField *part = static_cast<PartDynamicTextField *>(parts.first())) {
 		if (m_text_field) {
-			disconnectConnections();
+            disconnectChangeConnections();
 		}
 
 		m_text_field = part;
@@ -103,7 +103,7 @@ bool DynamicTextFieldEditor::setParts(QList <CustomElementPart *> parts) {
 		for (int i=1; i < parts.length(); i++)
 			m_parts.append(static_cast<PartDynamicTextField*>(parts[i]));
 
-		setUpConnections();
+        setUpChangeConnections();
 		fillInfoComboBox();
 		updateForm();
 		return true;
@@ -180,7 +180,7 @@ void DynamicTextFieldEditor::setupWidget()
 #endif
 }
 
-void DynamicTextFieldEditor::setUpConnections()
+void DynamicTextFieldEditor::setUpChangeConnectionsPriv()
 {
     assert(m_change_connections.isEmpty());
 	//Setup the connection
@@ -204,16 +204,6 @@ void DynamicTextFieldEditor::setUpConnections()
 		[this](){this -> updateForm();});
     m_change_connections << connect(m_text_field.data(), &PartDynamicTextField::compositeTextChanged,
 		[this](){this -> updateForm();});
-}
-
-void DynamicTextFieldEditor::disconnectConnections()
-{
-	//Remove previous connection
-    if(!m_change_connections.isEmpty())
-        for(const QMetaObject::Connection& con : m_change_connections) {
-			disconnect(con);
-		}
-    m_change_connections.clear();
 }
 
 /**

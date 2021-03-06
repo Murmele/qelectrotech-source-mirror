@@ -48,7 +48,7 @@ ArcEditor::ArcEditor(QETElementEditor *editor, PartArc *arc, QWidget *parent) :
 	h->setRange(-5000, 5000);
 	v->setRange(-5000, 5000);
 
-	QVBoxLayout *v_layout = new QVBoxLayout(this);
+    QVBoxLayout *v_layout = new QVBoxLayout();
 
 	QGridLayout *grid = new QGridLayout();
 	grid -> addWidget(new QLabel(tr("Centre : ")),            0, 0);
@@ -70,6 +70,9 @@ ArcEditor::ArcEditor(QETElementEditor *editor, PartArc *arc, QWidget *parent) :
 	v_layout -> addLayout(grid);
 	v_layout->addStretch();
 
+    QWidget* w = new QWidget(editorWidget());
+    w->setLayout(v_layout);
+
 	updateForm();
 
 	activeConnections(true);
@@ -79,7 +82,7 @@ ArcEditor::ArcEditor(QETElementEditor *editor, PartArc *arc, QWidget *parent) :
 ArcEditor::~ArcEditor()
 {}
 
-void ArcEditor::setUpChangeConnections()
+void ArcEditor::setUpChangeConnectionsPriv()
 {
 	m_change_connections << connect(m_part, &PartArc::rectChanged, this, &ArcEditor::updateForm);
 	m_change_connections << connect(m_part, &PartArc::spanAngleChanged, this, &ArcEditor::updateForm);
@@ -89,14 +92,6 @@ void ArcEditor::setUpChangeConnections()
 #endif
     // TODO: implement position changes!
     //m_change_connections << connect(part, &PartArc::)
-}
-
-void ArcEditor::disconnectChangeConnections()
-{
-    for (QMetaObject::Connection c : m_change_connections) {
-	disconnect(c);
-    }
-    m_change_connections.clear();
 }
 
 /**

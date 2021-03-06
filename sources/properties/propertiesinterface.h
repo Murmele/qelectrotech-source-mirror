@@ -83,15 +83,6 @@ class PropertiesInterface
     int userPropertiesCount() const;
 
     /*!
-     * \brief setUserProperty
-     * Adds a new property if \p key does not exist in the \p properties member,
-     * otherwise overwrite the value
-     * \param key
-     * \param value
-     */
-    void setUserProperty(const QString& key, const QVariant& value);
-
-    /*!
      * \brief existUserProperty
      * Checks if a user property with key \p key is available or not
      * \param key
@@ -107,8 +98,21 @@ class PropertiesInterface
      * \param key
      * \return
      */
-    QVariant userPropertyValue(const QString& key);
+    QVariant userProperty(const QString& key) const;
 
+    /*!
+     * \brief userProperties
+     * Get iterator to the user Properties
+     * Use
+     * QHashIterator<int, QWidget *> i(hash);
+     *   while (i.findNext(widget)) {
+     *       qDebug() << "Found widget " << widget << " under key "
+     *                << i.key();
+     *   }
+     * to iterate over the properties
+     * \return
+     */
+    QHashIterator<QString, QVariant> userProperties() const;
 
 	static bool valideXml(QDomElement& element);
 
@@ -167,6 +171,19 @@ class PropertiesInterface
 		@return une chaine de caractere representant l'orientation
 	*/
 	static QString orientationToString(Qet::Orientation o);
+
+protected:
+    /*!
+     * \brief setUserProperty
+     * Adds a new property if \p key does not exist in the \p properties member,
+     * otherwise overwrite the value
+     *
+     * This function is protected, because otherwise this function gets called from external and
+     * no change signal is emitted, which is implemented in customElementGraphicPart
+     * \param key
+     * \param value
+     */
+    void setUserProperty(const QString& key, const QVariant& value);
 
 private:
     virtual void toXmlPriv (QDomElement &e) const =0;

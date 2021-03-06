@@ -35,7 +35,7 @@ LineEditor::LineEditor(
 		QETElementEditor *editor, PartLine *part, QWidget *parent) :
 	ElementItemEditor(editor, parent),ui(new Ui::LineEditor)
 {
-	ui->setupUi(this);
+    ui->setupUi(editorWidget());
 
 	ui->m_end1_cb->addItem(
 				QET::Icons::EndLineNone,
@@ -205,7 +205,7 @@ void LineEditor::updateFormPriv()
  * @brief LineEditor::setUpChangeConnections
  * Make the connection use for update the form when line is edited out of this editor
  */
-void LineEditor::setUpChangeConnections()
+void LineEditor::setUpChangeConnectionsPriv()
 {
 	m_change_connections << connect(m_part, &PartLine::xChanged,               this, &LineEditor::updateForm);
 	m_change_connections << connect(m_part, &PartLine::yChanged,               this, &LineEditor::updateForm);
@@ -214,20 +214,6 @@ void LineEditor::setUpChangeConnections()
 	m_change_connections << connect(m_part, &PartLine::firstEndLengthChanged,  this, &LineEditor::updateForm);
 	m_change_connections << connect(m_part, &PartLine::secondEndTypeChanged,   this, &LineEditor::updateForm);
 	m_change_connections << connect(m_part, &PartLine::secondEndLengthChanged, this, &LineEditor::updateForm);
-}
-
-/**
- * @brief LineEditor::disconnectChangeConnections
- * disconnect the connection
- * use for update the form when line is edited out of this editor
- */
-void LineEditor::disconnectChangeConnections()
-{
-	for (auto connection : m_change_connections) {
-		disconnect(connection);
-	}
-
-	m_change_connections.clear();
 }
 
 /**

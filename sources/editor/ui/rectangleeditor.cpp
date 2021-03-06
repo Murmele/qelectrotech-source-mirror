@@ -35,7 +35,7 @@ RectangleEditor::RectangleEditor(QETElementEditor *editor, PartRectangle *rect, 
 	m_part(rect),
 	ui(new Ui::RectangleEditor)
 {
-	ui->setupUi(this);
+    ui->setupUi(editorWidget());
 	m_style = new StyleEditor(editor);
 	ui->verticalLayout->insertWidget(0, m_style);
 }
@@ -48,21 +48,13 @@ RectangleEditor::~RectangleEditor()
 	delete ui;
 }
 
-void RectangleEditor::setUpChangeConnections()
+void RectangleEditor::setUpChangeConnectionsPriv()
 {
 	m_change_connections << connect(m_part, &PartRectangle::rectChanged, this, &RectangleEditor::updateForm);
 	m_change_connections << connect(m_part, &PartRectangle::XRadiusChanged, this, &RectangleEditor::updateForm);
 	m_change_connections << connect(m_part, &PartRectangle::YRadiusChanged, this, &RectangleEditor::updateForm);
 	m_change_connections << connect(m_part, &PartRectangle::xChanged, this, &RectangleEditor::updateForm);
 	m_change_connections << connect(m_part, &PartRectangle::yChanged, this, &RectangleEditor::updateForm);
-}
-
-void RectangleEditor::disconnectChangeConnections()
-{
-	for (QMetaObject::Connection c : m_change_connections) {
-		disconnect(c);
-	}
-	m_change_connections.clear();
 }
 
 /**

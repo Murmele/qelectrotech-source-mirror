@@ -37,7 +37,7 @@ PolygonEditor::PolygonEditor(QETElementEditor *editor,
 	ui(new Ui::PolygonEditor),
 	m_part(part)
 {
-	ui->setupUi(this);
+    ui->setupUi(editorWidget());
 	m_style = new StyleEditor(editor);
 	ui->m_main_layout->insertWidget(0, m_style);
 	updateForm();
@@ -54,7 +54,7 @@ PolygonEditor::~PolygonEditor()
 	delete ui;
 }
 
-void PolygonEditor::setUpChangeConnections()
+void PolygonEditor::setUpChangeConnectionsPriv()
 {
 	m_change_connections << connect(m_part,
 					&PartPolygon::polygonChanged,
@@ -72,14 +72,6 @@ void PolygonEditor::setUpChangeConnections()
 					&PartPolygon::yChanged,
 					this,
 					&PolygonEditor::updateForm);
-}
-
-void PolygonEditor::disconnectChangeConnections()
-{
-	for (QMetaObject::Connection c : m_change_connections) {
-		disconnect(c);
-	}
-	 m_change_connections.clear();
 }
 
 /**

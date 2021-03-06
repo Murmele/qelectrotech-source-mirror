@@ -24,6 +24,7 @@ class QETElementEditor;
 class ElementScene;
 class CustomElementPart;
 class QUndoStack;
+class QListWidget;
 
 /**
 	This is the base class for primitives editors within the element editor. It
@@ -55,19 +56,48 @@ class ElementItemEditor : public QWidget
 
 		virtual CustomElementPart *currentPart() const = 0;
 		virtual QList<CustomElementPart*> currentParts() const = 0;
+        virtual void setUpChangeConnections();
         /*!
          * \brief updateForm
          * update the values of the widget
          */
         virtual void updateForm();
+
+        QWidget* editorWidget() {return mEditorWidget;}
+
+        /*!
+         * \brief disconnectChangeConnections
+         * Disconnects all change connections and deletes the connections
+         */
+        void disconnectChangeConnections();
     private:
+        virtual void setUpChangeConnectionsPriv() = 0;
         virtual void updateFormPriv() = 0;
+
+private slots:
+        /*!
+         * \brief updateUserProperties
+         * update the list with the user properties
+         * \param key
+         */
+        void updateUserProperties(const QString& key);
 	
 protected:
+        /*!
+         * \brief m_change_connections
+         * Connections from the part to the editor
+         */
         QList<QMetaObject::Connection> m_change_connections;
 		// attributes
 	private:
-		QETElementEditor *element_editor;
+		QETElementEditor *element_editor{nullptr};
 		QString element_type_name;
+
+        /*!
+         * On this widget all individual widgets of the different
+         * editors will be placed.
+         */
+        QWidget* mEditorWidget{nullptr};
+		QListWidget* mUserPropertiesList{nullptr};
 };
 #endif

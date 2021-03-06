@@ -154,6 +154,21 @@ void CustomElementGraphicPart::setAntialiased(const bool b)
 	update();
 }
 
+void CustomElementGraphicPart::setUserProperty(const QString& name, const QVariant& value)
+{
+    PropertiesInterface::setUserProperty(name, value);
+    emit userPropertiesChanged(name);
+}
+
+QVariant CustomElementGraphicPart::getUserProperty(const QString& name) const {
+   return PropertiesInterface::userProperty(name);
+}
+
+QHashIterator<QString, QVariant> CustomElementGraphicPart::getUserProperties() const
+{
+    return PropertiesInterface::userProperties();
+}
+
 /**
 	@brief CustomElementGraphicPart::stylesToXml
 	Write the curent style to xml element.

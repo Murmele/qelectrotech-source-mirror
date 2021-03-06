@@ -424,12 +424,17 @@ bool PropertiesInterface::existUserProperty(const QString& key) const
     return properties.contains(key);
 }
 
-QVariant PropertiesInterface::userPropertyValue(const QString& key)
+QVariant PropertiesInterface::userProperty(const QString& key) const
 {
     if (!existUserProperty(key))
         return QVariant();
 
     return properties[key];
+}
+
+QHashIterator<QString, QVariant> PropertiesInterface::userProperties() const
+{
+    return QHashIterator<QString, QVariant>(properties);
 }
 
 void PropertiesInterface::propertiesToXml(QDomElement& e) const

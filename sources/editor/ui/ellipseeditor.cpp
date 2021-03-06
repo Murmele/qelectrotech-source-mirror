@@ -34,7 +34,7 @@ EllipseEditor::EllipseEditor(QETElementEditor *editor, PartEllipse *part, QWidge
 	ui(new Ui::EllipseEditor),
 	m_part(part)
 {
-    ui->setupUi(this);
+    ui->setupUi(editorWidget());
 	m_style = new StyleEditor(editor);
 	ui->m_main_layout->insertWidget(0, m_style);
 	updateForm();
@@ -159,20 +159,9 @@ void EllipseEditor::updateRect()
 /**
  * @brief EllipseEditor::setUpChangeConnections
  */
-void EllipseEditor::setUpChangeConnections()
+void EllipseEditor::setUpChangeConnectionsPriv()
 {
 	m_change_connections << connect(m_part, &PartEllipse::xChanged, this, &EllipseEditor::updateForm);
 	m_change_connections << connect(m_part, &PartEllipse::yChanged, this, &EllipseEditor::updateForm);
 	m_change_connections << connect(m_part, &PartEllipse::rectChanged, this, &EllipseEditor::updateForm);
-}
-
-/**
- * @brief EllipseEditor::disconnectChangeConnections
- */
-void EllipseEditor::disconnectChangeConnections()
-{
-	for (QMetaObject::Connection c : m_change_connections) {
-		disconnect(c);
-	}
-	m_change_connections.clear();
 }

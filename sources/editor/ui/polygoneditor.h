@@ -56,8 +56,7 @@ class PolygonEditor : public ElementItemEditor
 			Setup the connection from the line(s) to the widget,
 			to update it when the line(s) are changed (moved ...)
 	*/
-	void setUpChangeConnections();
-	void disconnectChangeConnections();
+    void setUpChangeConnectionsPriv();
 	
 	private:
 	Ui::PolygonEditor *ui;

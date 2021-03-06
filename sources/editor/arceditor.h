@@ -67,7 +67,6 @@ class ArcEditor : public ElementItemEditor
 			Setup the connection from the arc(s) to the widget,
 			to update it when the arc(s) are changed (moved ...)
 		*/
-		void setUpChangeConnections();
-		void disconnectChangeConnections();
+        void setUpChangeConnectionsPriv() override;
 };
 #endif
