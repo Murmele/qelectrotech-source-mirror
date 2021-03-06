@@ -65,6 +65,26 @@ QString PropertiesInterface::tagName() const
     return mTagName;
 }
 
+ QString PropertiesInterface::QVariantTypeToString(const QVariant& value)
+{
+
+    switch(value.type()) {
+    case QVariant::Type::String:
+        return stringS;
+    case QVariant::Type::Int:
+        return integerS;
+    case QVariant::Type::Double:
+        return doubleS;
+    case QVariant::Type::Bool:
+        return boolS;
+    case QVariant::Type::Color:
+        return colorS;
+    default:
+        break;
+    }
+    return "";
+}
+
 QDomElement PropertiesInterface::toXml (QDomDocument &xml_document) const
 {
     QDomElement element = xml_document.createElement(mTagName);
@@ -432,9 +452,9 @@ QVariant PropertiesInterface::userProperty(const QString& key) const
     return properties[key];
 }
 
-QHashIterator<QString, QVariant> PropertiesInterface::userProperties() const
+const QHash<QString, QVariant>* PropertiesInterface::userProperties() const
 {
-    return QHashIterator<QString, QVariant>(properties);
+    return &properties;
 }
 
 void PropertiesInterface::propertiesToXml(QDomElement& e) const

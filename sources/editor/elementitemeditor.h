@@ -24,7 +24,8 @@ class QETElementEditor;
 class ElementScene;
 class CustomElementPart;
 class QUndoStack;
-class QListWidget;
+class GenericTableView;
+class GenericTableModel;
 
 /**
 	This is the base class for primitives editors within the element editor. It
@@ -81,6 +82,8 @@ private slots:
          * \param key
          */
         void updateUserProperties(const QString& key);
+        void addProperty();
+        void removeCurrSelectedProperty();
 	
 protected:
         /*!
@@ -98,6 +101,7 @@ protected:
          * editors will be placed.
          */
         QWidget* mEditorWidget{nullptr};
-		QListWidget* mUserPropertiesList{nullptr};
+        GenericTableView* mUserPropertiesTableView{nullptr};
+        GenericTableModel* mUserPropertiesModel{nullptr};
 };
 #endif

@@ -164,10 +164,10 @@ QVariant CustomElementGraphicPart::getUserProperty(const QString& name) const {
    return PropertiesInterface::userProperty(name);
 }
 
-QHashIterator<QString, QVariant> CustomElementGraphicPart::getUserProperties() const
-{
-    return PropertiesInterface::userProperties();
-}
+//QHashIterator<QString, QVariant> CustomElementGraphicPart::getUserProperties() const
+//{
+//    return PropertiesInterface::userProperties();
+//}
 
 /**
 	@brief CustomElementGraphicPart::stylesToXml

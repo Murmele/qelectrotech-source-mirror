@@ -296,7 +296,7 @@ class CustomElementGraphicPart : public QGraphicsObject, public CustomElementPar
          * \brief getUserProperties
          * \return
          */
-        QHashIterator<QString, QVariant> getUserProperties() const;
+        //QHashIterator<QString, QVariant> getUserProperties() const;
 
 
 			//Rediriged to QObject Q_PROPERTY system

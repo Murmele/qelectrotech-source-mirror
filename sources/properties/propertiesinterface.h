@@ -112,10 +112,12 @@ class PropertiesInterface
      * to iterate over the properties
      * \return
      */
-    QHashIterator<QString, QVariant> userProperties() const;
+    const QHash<QString, QVariant>* userProperties() const;
 
 	static bool valideXml(QDomElement& element);
 
+    static QStringList supportedDatatypes() {return {"String", "Integer", "Double", "Boolean", "Color"};} // Uuid makes no sense to support
+    static QString QVariantTypeToString(const QVariant& value);
 	/*!
 	 * Use this functions to add properties to the xml document
 	 */
