@@ -112,7 +112,7 @@ class PropertiesInterface
      * to iterate over the properties
      * \return
      */
-    const QHash<QString, QVariant>* userProperties() const;
+    const QHashIterator<QString, QVariant> userProperties() const;
 
 	static bool valideXml(QDomElement& element);
 

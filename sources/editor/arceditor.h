@@ -41,10 +41,10 @@ class ArcEditor : public ElementItemEditor
 	
 		// attributes
 	private:
-		PartArc *m_part;
-		StyleEditor *m_style;
-		QDoubleSpinBox *x, *y, *h, *v;
-		QSpinBox *angle, *start_angle;
+        PartArc *m_part{nullptr};
+        StyleEditor *m_style{nullptr};
+        QDoubleSpinBox *x{nullptr}, *y{nullptr}, *h{nullptr}, *v{nullptr};
+        QSpinBox *angle{nullptr}, *start_angle{nullptr};
 		bool m_locked;
 	
 		// methods

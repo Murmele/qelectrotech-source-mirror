@@ -97,17 +97,22 @@ void ElementItemEditor::updateForm()
     mUserPropertiesModel->clear();
 
     // Take the userproperties of the first
-    const QHash<QString, QVariant>* hash = currentPart()->userProperties();
-    QHashIterator<QString, QVariant> iterator(*hash);
-    QVariant value;
-    Property p;
-    while(iterator.findNext(value))
+    CustomElementPart* part = currentPart();
+    if (part)
     {
-        iterator.next();
-        p.m_name = iterator.key();
-        p.m_value = iterator.value();
-        p.m_datatype = PropertiesInterface::QVariantTypeToString(p.m_value);
-        mUserPropertiesModel->appendProperty(p);
+        QHashIterator<QString, QVariant> iterator = part->userProperties();
+        QVariant value;
+        Property p;
+        while(iterator.findNext(value))
+        {
+            iterator.next();
+            p.m_name = iterator.key();
+            p.m_value = iterator.value();
+            p.m_datatype = PropertiesInterface::QVariantTypeToString(p.m_value);
+            p.m_required = false;
+            //p.wrapper =
+            mUserPropertiesModel->appendProperty(p);
+        }
     }
 
     updateFormPriv();

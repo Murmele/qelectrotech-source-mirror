@@ -54,16 +54,16 @@ class TextEditor : public ElementItemEditor {
 		void disconnectEditConnection();
 
 	private:
-		QPointer <PartText> m_text;
+        QPointer <PartText> m_text;
 		QList<PartText*> m_parts;
 		QList <QMetaObject::Connection> m_edit_connection;
 		QList <QMetaObject::Connection> m_change_connection;
-		QSpinBox *m_y_sb;
-		QSpinBox *m_rotation_sb;
-		QSpinBox *m_x_sb;
-		QSpinBox *m_size_sb;
-		QLineEdit *m_line_edit;
-		QPushButton *m_font_pb;
+        QSpinBox *m_y_sb{nullptr};
+        QSpinBox *m_rotation_sb{nullptr};
+        QSpinBox *m_x_sb{nullptr};
+        QSpinBox *m_size_sb{nullptr};
+        QLineEdit *m_line_edit{nullptr};
+        QPushButton *m_font_pb{nullptr};
 #ifdef BUILD_WITHOUT_KF5
 #else
 		KColorButton *m_color_pb;

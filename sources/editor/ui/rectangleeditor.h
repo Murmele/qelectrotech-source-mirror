@@ -66,9 +66,9 @@ class RectangleEditor : public ElementItemEditor
 	
 	private:
 	bool m_locked = false;
-	StyleEditor *m_style;
-	PartRectangle *m_part;
-	Ui::RectangleEditor *ui;
+    StyleEditor *m_style{nullptr};
+    PartRectangle *m_part{nullptr};
+    Ui::RectangleEditor *ui{nullptr};
 };
 
 #endif // RECTANGLEEDITOR_H

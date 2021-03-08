@@ -56,7 +56,7 @@ class TerminalEditor : public ElementItemEditor
     private:
         Ui::TerminalEditor *ui;
         QVector<QMetaObject::Connection> m_editor_connections;
-		PartTerminal *m_part = nullptr;
+        PartTerminal *m_part{nullptr};
 		bool m_locked = false;
 };
 
