@@ -21,11 +21,7 @@
 #include "graphicspart/customelementgraphicpart.h"
 #include "graphicspart/parttext.h"
 #include "graphicspart/partdynamictextfield.h"
-
-#include "../GenericTableView/lib/generictableview.h"
-#include "../GenericTableView/lib/generictablemodel.h"
-#include "../GenericTableView/lib/Wrapper/propertyselectionlineedit.h"
-#include "../GenericTableView/lib/Wrapper/propertyselectionspinbox.h"
+#include "userPropertiesEditor/UserPropertiesEditor.h"
 
 /**
 	Constructeur
@@ -46,14 +42,10 @@ ElementItemEditor::ElementItemEditor(QETElementEditor *editor, QWidget *parent) 
     QLabel* l = new QLabel(tr("User Properties:"), this);
     vbox->addWidget(l);
 
-    // This widget is always the last
-    mUserPropertiesTableView = new GenericTableView(this);
-    mUserPropertiesModel = new GenericTableModel(mUserPropertiesTableView);
-    QStringList header = {"Name", "Value"};
-    mUserPropertiesModel->setHeader(header);
-    mUserPropertiesTableView->setModel(mUserPropertiesModel);
 
-    vbox->addWidget(mUserPropertiesTableView);
+    // This widget is always the last
+    mUserPropertiesEditor = new UserPropertiesEditor(this);
+    vbox->addWidget(mUserPropertiesEditor);
 
     QHBoxLayout* addRem = new QHBoxLayout();
     QPushButton* add = new QPushButton(tr("Add"), this);
@@ -92,27 +84,12 @@ void ElementItemEditor::disconnectChangeConnections()
 void ElementItemEditor::updateForm()
 {
 
-    // TODO: Update list with all the user properties
-
-    mUserPropertiesModel->clear();
-
     // Take the userproperties of the first
     CustomElementPart* part = currentPart();
     if (part)
     {
         QHashIterator<QString, QVariant> iterator = part->userProperties();
-        QVariant value;
-        Property p;
-        while(iterator.findNext(value))
-        {
-            iterator.next();
-            p.m_name = iterator.key();
-            p.m_value = iterator.value();
-            p.m_datatype = PropertiesInterface::QVariantTypeToString(p.m_value);
-            p.m_required = false;
-            //p.wrapper =
-            mUserPropertiesModel->appendProperty(p);
-        }
+        mUserPropertiesEditor->setProperties(iterator);
     }
 
     updateFormPriv();
@@ -140,68 +117,14 @@ void ElementItemEditor::updateUserProperties(const QString& key)
     //
 }
 
-namespace  {
-    /*!
-     * \brief The PropertyDialog class
-     * Simple dialog to select the datatype and the name of the property
-     */
-    class PropertyDialog: public QDialog
-    {
-    public:
-        PropertyDialog(QWidget *parent = nullptr): QDialog(parent) {
-            QVBoxLayout* layout = new QVBoxLayout();
-
-            cb = new QComboBox(this);
-            cb->addItems(PropertiesInterface::supportedDatatypes());
-            layout->addWidget(cb);
-
-            le = new QLineEdit("Property name", this);
-            layout->addWidget(le);
-
-            QPushButton* btn = new QPushButton("OK");
-            layout->addWidget(btn);
-
-            // capture a reference (&)
-            connect(btn, &QPushButton::clicked, [&] { this->accept(); });
-
-            this->setLayout(layout);
-        };
-
-        QString name() {return le->text();}
-        QString datatype() {return cb->currentText();}
-
-    private:
-        QLineEdit* le;
-        QComboBox* cb;
-    };
-}
-
 void ElementItemEditor::addProperty()
 {
-    PropertyDialog dialog(this);
-    if (dialog.exec() != QDialog::Accepted)
-        return;
-
-    QString name = dialog.name();
-    QString datatype = dialog.datatype();
-
-    Property p(name, datatype);
-
-    if (datatype == "String")
-    {
-        p.wrapper = QSharedPointer<PropertySelectionWrapper>(new PropertySelectionLineEdit(this));
-    }
-    else if (datatype == "Integer")
-    {
-        p.wrapper = QSharedPointer<PropertySelectionWrapper>(new PropertySelectionSpinBox(this));
-    }
-
-    mUserPropertiesModel->appendProperty(p);
+    mUserPropertiesEditor->addProperty();
 }
 
 void ElementItemEditor::removeCurrSelectedProperty()
 {
-    mUserPropertiesModel->removeProperty(mUserPropertiesTableView->currentIndex().row());
+    mUserPropertiesEditor->removeSelectedProperty();
 }
 
 void ElementItemEditor::setUpChangeConnections()

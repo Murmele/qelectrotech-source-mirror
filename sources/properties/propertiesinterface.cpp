@@ -22,12 +22,6 @@
  * Available property types
  */
 namespace  {
-	const QString integerS = "int";
-	const QString doubleS = "double";
-	const QString boolS = "bool";
-	const QString stringS = "string";
-	const QString uuidS = "uuid";
-	const QString colorS = "color";
 
     const QString userPropertiesS = "userProperties";
 
@@ -65,9 +59,13 @@ QString PropertiesInterface::tagName() const
     return mTagName;
 }
 
+QStringList PropertiesInterface::supportedDatatypes() {
+    // Uuid makes no sense to support from external
+    return {stringS, integerS, doubleS, boolS, colorS};
+}
+
  QString PropertiesInterface::QVariantTypeToString(const QVariant& value)
 {
-
     switch(value.type()) {
     case QVariant::Type::String:
         return stringS;

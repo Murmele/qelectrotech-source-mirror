@@ -1,0 +1,24 @@
+#ifndef USERPROPERTIESEDITOR_H
+#define USERPROPERTIESEDITOR_H
+
+#include <QWidget>
+
+class GenericTableView;
+class GenericTableModel;
+class PropertySelectionWrapper;
+
+class UserPropertiesEditor: public QWidget
+{
+public:
+    UserPropertiesEditor(QWidget* parent = nullptr);
+    void setProperties(QHashIterator<QString, QVariant>& iterator);
+    void addProperty();
+    void removeSelectedProperty();
+private:
+    QSharedPointer<PropertySelectionWrapper> wrapperForDatatype(QString datatype);
+private:
+    GenericTableView* mUserPropertiesTableView{nullptr};
+    GenericTableModel* mUserPropertiesModel{nullptr};
+};
+
+#endif /* USERPROPERTIESEDITOR_H */

@@ -160,10 +160,13 @@ HEADERS += $$files(sources/*.h) $$files(sources/ui/*.h) \
            $$files(sources/dataBase/*.h) \
            $$files(sources/dataBase/ui/*.h) \
            $$files(sources/factory/ui/*.h) \
-		   $$files(sources/print/*.h) \
-		   $$files(sources/GenericTableView/lib/*.h) \
-		   $$files(sources/GenericTableView/lib/Wrapper/propertyselectionlineedit.h) \
-		   $$files(sources/GenericTableView/lib/Wrapper/propertyselectionspinbox.h)
+           $$files(sources/print/*.h) \
+           $$files(sources/editor/userPropertiesEditor/GenericTableView/lib/*.h) \
+           $$files(sources/editor/userPropertiesEditor/*.h) \
+           $$files(sources/editor/userPropertiesEditor/GenericTableView/lib/Wrapper/propertyselectionlineedit.h) \
+           $$files(sources/editor/userPropertiesEditor/GenericTableView/lib/Wrapper/propertyselectionspinbox.h) \
+           $$files(sources/editor/userPropertiesEditor/GenericTableView/lib/Wrapper/propertyselectiondoublespinbox.h)
+
 
 SOURCES += $$files(sources/*.cpp) \
            $$files(sources/editor/*.cpp) \
@@ -196,10 +199,12 @@ SOURCES += $$files(sources/*.cpp) \
            $$files(sources/dataBase/*.cpp) \
            $$files(sources/dataBase/ui/*.cpp) \
            $$files(sources/factory/ui/*.cpp) \
-		   $$files(sources/print/*.cpp) \
-		   $$files(sources/GenericTableView/lib/*.cpp) \
-		   $$files(sources/GenericTableView/lib/Wrapper/propertyselectionlineedit.cpp) \
-		   $$files(sources/GenericTableView/lib/Wrapper/propertyselectionspinbox.cpp)
+           $$files(sources/print/*.cpp) \
+           $$files(sources/editor/userPropertiesEditor/*.cpp) \
+           $$files(sources/editor/userPropertiesEditor/GenericTableView/lib/*.cpp) \
+           $$files(sources/editor/userPropertiesEditor/GenericTableView/lib/Wrapper/propertyselectionlineedit.cpp) \
+           $$files(sources/editor/userPropertiesEditor/GenericTableView/lib/Wrapper/propertyselectionspinbox.cpp) \
+           $$files(sources/editor/userPropertiesEditor/GenericTableView/lib/Wrapper/propertyselectiondoublespinbox.cpp)
 
 # Liste des fichiers qui seront incorpores au binaire en tant que ressources Qt
 RESOURCES += qelectrotech.qrc

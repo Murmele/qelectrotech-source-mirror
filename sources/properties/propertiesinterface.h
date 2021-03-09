@@ -116,7 +116,7 @@ class PropertiesInterface
 
 	static bool valideXml(QDomElement& element);
 
-    static QStringList supportedDatatypes() {return {"String", "Integer", "Double", "Boolean", "Color"};} // Uuid makes no sense to support
+    static QStringList supportedDatatypes();
     static QString QVariantTypeToString(const QVariant& value);
 	/*!
 	 * Use this functions to add properties to the xml document
@@ -187,6 +187,14 @@ protected:
      */
     void setUserProperty(const QString& key, const QVariant& value);
 
+public:
+    static const QString integerS;
+    static const QString doubleS;
+    static const QString boolS;
+    static const QString stringS;
+    static const QString uuidS;
+    static const QString colorS;
+
 private:
     virtual void toXmlPriv (QDomElement &e) const =0;
     virtual bool fromXmlPriv (const QDomElement &e) =0;
@@ -201,5 +209,12 @@ private:
     QHash<QString, QVariant> properties;
     QString mTagName{""};
 };
+
+static const QString integerS = "int";
+static const QString doubleS = "double";
+static const QString boolS = "bool";
+static const QString stringS = "string";
+static const QString uuidS = "uuid";
+static const QString colorS = "color";
 
 #endif // PROPERTIESINTERFACE_H

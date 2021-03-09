@@ -24,8 +24,7 @@ class QETElementEditor;
 class ElementScene;
 class CustomElementPart;
 class QUndoStack;
-class GenericTableView;
-class GenericTableModel;
+class UserPropertiesEditor;
 
 /**
 	This is the base class for primitives editors within the element editor. It
@@ -101,7 +100,6 @@ protected:
          * editors will be placed.
          */
         QWidget* mEditorWidget{nullptr};
-        GenericTableView* mUserPropertiesTableView{nullptr};
-        GenericTableModel* mUserPropertiesModel{nullptr};
+        UserPropertiesEditor* mUserPropertiesEditor{nullptr};
 };
 #endif
