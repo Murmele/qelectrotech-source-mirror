@@ -22,6 +22,8 @@
 #include <QHash>
 #include <QMetaEnum>
 
+#include "../qetxml.h"
+
 /**
 	@brief XRefProperties::XRefProperties
 	Default Constructor
@@ -93,24 +95,30 @@ void XRefProperties::fromSettings(QSettings &settings,
 	@param xml_document : QDomElement to use for saving
 	@return QDomElement
 */
-void XRefProperties::toXmlPriv(QDomElement& e) const
+void XRefProperties::toXmlPriv(QDomElement& xml_element) const
 {
+    xml_element.setAttribute("type", m_key);
 
-    e.appendChild(createXmlProperty("type", m_key));
-    e.appendChild(createXmlProperty("showpowerctc", m_show_power_ctc));
-    e.appendChild(createXmlProperty("displayhas", m_display == Cross? "cross" : "contacts"));
-    e.appendChild(createXmlProperty("snapto", m_snap_to == Bottom? "bottom" : "label"));
+    xml_element.setAttribute("showpowerctc", m_show_power_ctc? "true" : "false");
+    QString display = m_display == Cross? "cross" : "contacts";
+    xml_element.setAttribute("displayhas", display);
+    QString snap = m_snap_to == Bottom? "bottom" : "label";
+    xml_element.setAttribute("snapto", snap);
 
+    QString xrefpos;
 
-	QMetaEnum var = QMetaEnum::fromType<Qt::Alignment>();
-    e.appendChild(createXmlProperty("xrefpos", var.valueToKey(m_xref_pos)));
-    e.appendChild(createXmlProperty("offset", m_offset));
-    e.appendChild(createXmlProperty("master_label", m_master_label));
-    e.appendChild(createXmlProperty("slave_label", m_slave_label));
+    QMetaEnum var = QMetaEnum::fromType<Qt::Alignment>();
+    xml_element.setAttribute("xrefpos",  var.valueToKey(m_xref_pos));
 
-	foreach (QString key, m_prefix.keys()) {
-        e.appendChild(createXmlProperty(key + "prefix", m_prefix.value(key)));
-	}
+    int offset = m_offset;
+    xml_element.setAttribute("offset", QString::number(offset));
+    QString master_label = m_master_label;
+    xml_element.setAttribute("master_label", master_label);
+    QString slave_label = m_slave_label;
+    xml_element.setAttribute("slave_label", slave_label);
+    foreach (QString key, m_prefix.keys()) {
+        xml_element.setAttribute(key + "prefix", m_prefix.value(key));
+    }
 }
 
 /** RETURNS True
@@ -120,32 +128,32 @@ void XRefProperties::toXmlPriv(QDomElement& e) const
 */
 bool XRefProperties::fromXmlPriv(const QDomElement &xml_element) {
 
-	if (propertyBool(xml_element, "showpowerctc", &m_show_power_ctc))
+	if (QETXML::propertyBool(xml_element, "showpowerctc", &m_show_power_ctc))
 		return false;
 
 	QString display;
-	if (propertyString(xml_element, "displayhas", &display) != PropertyFlags::NotFound) {
+    if (QETXML::propertyString(xml_element, "displayhas", &display) != QETXML::PropertyFlags::NotFound) {
 		display == "cross"? m_display = Cross : m_display = Contacts;
 	}
 
 
 	QString snap;
-	if (propertyString(xml_element, "snapto", &snap)  != PropertyFlags::NotFound) {
+    if (QETXML::propertyString(xml_element, "snapto", &snap)  != QETXML::PropertyFlags::NotFound) {
 		snap == "bottom"? m_snap_to = Bottom : m_snap_to = Label;
 	}
 
 	QString xrefpos;
-	if (propertyString(xml_element, "xrefpos", &xrefpos) != PropertyFlags::NotFound) {
+    if (QETXML::propertyString(xml_element, "xrefpos", &xrefpos) != QETXML::PropertyFlags::NotFound) {
 		QMetaEnum var = QMetaEnum::fromType<Qt::Alignment>();
 		m_xref_pos = Qt::AlignmentFlag(var.keyToValue(xrefpos.toStdString().data()));
 	}
 	// TODO: why it compiles without this true??
-	propertyInteger(xml_element, "offset", &m_offset);
-	propertyString(xml_element, "master_label", &m_master_label);
-	propertyString(xml_element, "slave_label", &m_slave_label);
+	QETXML::propertyInteger(xml_element, "offset", &m_offset);
+    QETXML::propertyString(xml_element, "master_label", &m_master_label);
+    QETXML::propertyString(xml_element, "slave_label", &m_slave_label);
 	QString value;
 	foreach (QString key, m_prefix_keys) {
-        if (!propertyString(xml_element, key + "prefix", &value))
+        if (!QETXML::propertyString(xml_element, key + "prefix", &value))
 			m_prefix.insert(key, value);
 	}
 	return true;

@@ -21,6 +21,8 @@
 #include "../diagramcommands.h"
 #include "../qetgraphicsitem/conductor.h"
 
+#include "../qetxml.h"
+
 /**
 	Constructeur
 	@param parent_conductor  Conducteur auquel ce texte est rattache
@@ -61,17 +63,6 @@ Conductor *ConductorTextItem::parentConductor() const
 	return(parent_conductor_);
 }
 
-void ConductorTextItem::toXml(QDomElement& e) {
-	if(moved_by_user_)
-	{
-		e.appendChild(PropertiesInterface::createXmlProperty("userx", pos().x()));
-		e.appendChild(PropertiesInterface::createXmlProperty("usery", pos().y()));
-	}
-	if(rotate_by_user_)
-		e.appendChild(PropertiesInterface::createXmlProperty("rotation", rotation()));
-}
-
-
 /**
 	@brief ConductorTextItem::fromXml
 	Read the properties stored in the xml element given in parameter
@@ -80,14 +71,14 @@ void ConductorTextItem::toXml(QDomElement& e) {
 void ConductorTextItem::fromXml(const QDomElement &e) {
 
 	double userx=0, usery=0;
-	if (PropertiesInterface::propertyDouble(e, "userx", &userx) == PropertiesInterface::PropertyFlags::Success &&
-		PropertiesInterface::propertyDouble(e, "usery", &usery) == PropertiesInterface::PropertyFlags::Success) {
+    if (QETXML::propertyDouble(e, "userx", &userx) == QETXML::PropertyFlags::Success &&
+        QETXML::propertyDouble(e, "usery", &usery) == QETXML::PropertyFlags::Success) {
 		setPos(userx, usery);
 		moved_by_user_ = true;
 	}
 
 	double rotation;
-	if (PropertiesInterface::propertyDouble(e, "rotation", &rotation) == PropertiesInterface::PropertyFlags::Success) {
+    if (QETXML::propertyDouble(e, "rotation", &rotation) == QETXML::PropertyFlags::Success) {
 		setRotation(rotation);
 		rotate_by_user_ = true;
 	}

@@ -19,6 +19,8 @@
 
 #include "../../qetgraphicsitem/terminal.h"
 
+#include "../../qetxml.h"
+
 /**
 	@brief PartTerminal::PartTerminal
 	@param editor :
@@ -52,7 +54,7 @@ bool PartTerminal::fromXmlPriv(const QDomElement &xml_elmt) {
 	// update part and add uuid, which is used in the new version to connect terminals together
 	// if the attribute not exists, means, the element is created with an older version of qet. So use the legacy approach
 	// to identify terminals
-	propertyUuid(xml_elmt, "uuid", &d->m_uuid);
+	QETXML::propertyUuid(xml_elmt, "uuid", &d->m_uuid);
 
 	if (!d->fromXml(xml_elmt))
 		return false;
@@ -70,13 +72,12 @@ bool PartTerminal::fromXmlPriv(const QDomElement &xml_elmt) {
 */
 void PartTerminal::toXmlPriv(QDomElement& e) const {
 
-    e.appendChild(createXmlProperty("uuid", d->m_uuid));
+    e.setAttribute("uuid", d->m_uuid.toString());
 
-	d->m_pos = pos();
+    d->m_pos = pos();
 
-	// Do not store terminal data in its own child
     QDomDocument doc = e.ownerDocument();
-    e.appendChild(d->toXml(doc));
+    e.appendChild(d -> toXml(doc));
 
 }
 

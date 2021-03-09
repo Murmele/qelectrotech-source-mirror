@@ -21,6 +21,8 @@
 #include "../../QetGraphicsItemModeler/qetgraphicshandleritem.h"
 #include "../elementscene.h"
 
+#include "../../qetxml.h"
+
 #include <cmath>
 
 /**
@@ -107,22 +109,21 @@ void PartLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *options,
 	@param xml_document : Xml document to use for create the xml element.
 	@return an xml element that describe this line
 */
-void PartLine::toXmlPriv(QDomElement& e) const
+void PartLine::toXmlPriv(QDomElement& xml_element) const
 {
-	QPointF p1(sceneP1());
-	QPointF p2(sceneP2());
+    QPointF p1(sceneP1());
+    QPointF p2(sceneP2());
 
-    e.appendChild(createXmlProperty("x1", p1.x()));
-    e.appendChild(createXmlProperty("y1", p1.y()));
-    e.appendChild(createXmlProperty("x2", p2.x()));
-    e.appendChild(createXmlProperty("y2", p2.y()));
+    xml_element.setAttribute("x1", QString("%1").arg(p1.x()));
+    xml_element.setAttribute("y1", QString("%1").arg(p1.y()));
+    xml_element.setAttribute("x2", QString("%1").arg(p2.x()));
+    xml_element.setAttribute("y2", QString("%1").arg(p2.y()));
+    xml_element.setAttribute("end1", Qet::endTypeToString(first_end));
+    xml_element.setAttribute("length1", QString("%1").arg(first_length));
+    xml_element.setAttribute("end2", Qet::endTypeToString(second_end));
+    xml_element.setAttribute("length2", QString("%1").arg(second_length));
 
-    e.appendChild(createXmlProperty("end1", Qet::endTypeToString(first_end)));
-    e.appendChild(createXmlProperty("length1", first_length));
-    e.appendChild(createXmlProperty("end2", Qet::endTypeToString(second_end)));
-    e.appendChild(createXmlProperty("length2", second_length));
-	
-    stylesToXml(e);
+    stylesToXml(xml_element);
 }
 
 /**
@@ -134,41 +135,41 @@ bool PartLine::fromXmlPriv(const QDomElement &qde) {
 	stylesFromXml(qde);
 
 	double x1 = 0, y1 = 0, x2 = 0, y2 = 0;
-	if (propertyDouble(qde, "x1", &x1) == PropertyFlags::NoValidConversion ||
-	propertyDouble(qde, "y1", &y1) == PropertyFlags::NoValidConversion ||
-	propertyDouble(qde, "x2", &x2) == PropertyFlags::NoValidConversion ||
-	propertyDouble(qde, "y2", &y2) == PropertyFlags::NoValidConversion)
+	if (QETXML::propertyDouble(qde, "x1", &x1) == QETXML::PropertyFlags::NoValidConversion ||
+	QETXML::propertyDouble(qde, "y1", &y1) == QETXML::PropertyFlags::NoValidConversion ||
+	QETXML::propertyDouble(qde, "x2", &x2) == QETXML::PropertyFlags::NoValidConversion ||
+	QETXML::propertyDouble(qde, "y2", &y2) == QETXML::PropertyFlags::NoValidConversion)
 		return false;
 
 	m_line = QLineF(mapFromScene(x1, y1),
 					mapFromScene(x2, y2));
 
 	QString s;
-	if (propertyString(qde, "end1", &s) != PropertyFlags::Success)
+    if (QETXML::propertyString(qde, "end1", &s) != QETXML::PropertyFlags::Success)
 		return false;
 	first_end = Qet::endTypeFromString(s);
 
-	if (propertyString(qde, "end2", &s) != PropertyFlags::Success)
+    if (QETXML::propertyString(qde, "end2", &s) != QETXML::PropertyFlags::Success)
 		return false;
 
 	first_end = Qet::endTypeFromString(s);
 
-	if (propertyDouble(qde, "length1", &first_length) == PropertyFlags::NoValidConversion ||
-		propertyDouble(qde, "length2", &second_length) == PropertyFlags::NoValidConversion)
+	if (QETXML::propertyDouble(qde, "length1", &first_length) == QETXML::PropertyFlags::NoValidConversion ||
+		QETXML::propertyDouble(qde, "length2", &second_length) == QETXML::PropertyFlags::NoValidConversion)
 		return false;
 
 	return true;
 }
 
 bool PartLine::valideXml(QDomElement& element) const {
-	if (propertyDouble(element, "x1") ||
-		propertyDouble(element, "y1") ||
-		propertyDouble(element, "x2") ||
-		propertyDouble(element, "y2") ||
-		propertyString(element, "end1") ||
-		propertyString(element, "end2") ||
-		propertyDouble(element, "length1") ||
-		propertyDouble(element, "length2") )
+	if (QETXML::propertyDouble(element, "x1") ||
+		QETXML::propertyDouble(element, "y1") ||
+		QETXML::propertyDouble(element, "x2") ||
+		QETXML::propertyDouble(element, "y2") ||
+        QETXML::propertyString(element, "end1") ||
+        QETXML::propertyString(element, "end2") ||
+		QETXML::propertyDouble(element, "length1") ||
+		QETXML::propertyDouble(element, "length2") )
 		return false;
 
 	return true;

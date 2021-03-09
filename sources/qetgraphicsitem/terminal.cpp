@@ -25,6 +25,8 @@
 #include "../qetgraphicsitem/element.h"
 #include "conductortextitem.h"
 
+#include "../qetxml.h"
+
 #include <utility>
 
 QColor Terminal::neutralColor      = QColor(Qt::blue);
@@ -758,15 +760,12 @@ QList<Conductor *> Terminal::conductors() const
 */
 void Terminal::toXmlPriv(QDomElement &qdo) const
 {
-    qdo.appendChild(createXmlProperty("number", number_terminal_));
-    qdo.appendChild(createXmlProperty("nameHidden", name_terminal_hidden));
+    // for backward compatibility
+    qdo.setAttribute("x", QString("%1").arg(dock_elmt_.x()));
+    qdo.setAttribute("y",  QString("%1").arg(dock_elmt_.y()));
+    // end for backward compatibility
 
-	// Do not store terminal data in its own child
-	// Bad hack. The problem is that in the diagrams the terminal is described by the position and in the Collection by the dock.
-	QPointF tempPos = d->m_pos;
-	d->m_pos = dock_elmt_;
-    d->toXmlPriv(qdo); // TerminalData
-	d->m_pos = tempPos;
+    qdo.setAttribute("orientation", d->m_orientation);
 }
 
 /**
@@ -780,10 +779,10 @@ bool Terminal::valideXml(const QDomElement &terminal)
 	if (terminal.tagName() != "terminal") return(false);
 
 // affuteuse_250h.qet contains in line 8398 terminals which do not have this
-//	if (propertyString(terminal, "number"))
+//	if (QETXML::propertyString(terminal, "number"))
 //		return false;
 // affuteuse_250h.qet contains in line 8398 terminals which do not have this
-//	if (propertyBool(terminal, "nameHidden"))
+//	if (QETXML::propertyBool(terminal, "nameHidden"))
 //		return false;
 
 	if (!TerminalData::valideXml(terminal))
@@ -802,9 +801,9 @@ bool Terminal::valideXml(const QDomElement &terminal)
 	(memes coordonnes, meme orientation), false sinon
 */
 bool Terminal::fromXmlPriv(const QDomElement &terminal) {
-	propertyString(terminal, "number", &number_terminal_);
+    QETXML::propertyString(terminal, "number", &number_terminal_);
 
-	propertyBool(terminal, "nameHidden", &name_terminal_hidden);
+	QETXML::propertyBool(terminal, "nameHidden", &name_terminal_hidden);
 
 	if(!d->fromXml(terminal))
 		return false;

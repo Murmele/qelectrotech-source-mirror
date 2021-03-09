@@ -22,6 +22,8 @@
 #include "../../QetGraphicsItemModeler/qetgraphicshandlerutility.h"
 #include "../elementscene.h"
 
+#include "../../qetxml.h"
+
 /**
 	@brief PartArc::PartArc
 	Constructor
@@ -101,22 +103,18 @@ void PartArc::paint(QPainter *painter, const QStyleOptionGraphicsItem *options, 
 	@param xml_document : Xml document to use for create the xml element.
 	@return : an xml element that describe this arc
 */
-void PartArc::toXmlPriv(QDomElement& e) const
+void PartArc::toXmlPriv(QDomElement& xml_element) const
 {
-    e.setTagName("arc");
-	QPointF top_left(sceneTopLeft());
-
-    e.appendChild(createXmlProperty("x", top_left.x()));
-    e.appendChild(createXmlProperty("y", top_left.y()));
-    e.appendChild(createXmlProperty("width", rect().width()));
-    e.appendChild(createXmlProperty("height", rect().height()));
-
-		//to maintain compatibility with the previous version, we write the angle in degrees.
-    e.appendChild(createXmlProperty("start", m_start_angle / 16));
-    e.appendChild(createXmlProperty("angle", m_span_angle / 16));
-
-
-    stylesToXml(e);
+    xml_element.setTagName("arc");
+    QPointF top_left(sceneTopLeft());
+    xml_element.setAttribute("x", QString("%1").arg(top_left.x()));
+    xml_element.setAttribute("y", QString("%1").arg(top_left.y()));
+    xml_element.setAttribute("width",  QString("%1").arg(rect().width()));
+    xml_element.setAttribute("height", QString("%1").arg(rect().height()));
+        //to maintain compatibility with the previous version, we write the angle in degrees.
+    xml_element.setAttribute("start", QString("%1").arg(m_start_angle / 16));
+    xml_element.setAttribute("angle", QString("%1").arg(m_span_angle / 16));
+    stylesToXml(xml_element);
 }
 
 /**
@@ -128,21 +126,21 @@ bool PartArc::fromXmlPriv(const QDomElement &qde) {
 	stylesFromXml(qde);
 
 	double x=0, y=0, w=0, h=0;
-	if (propertyDouble(qde, "x", &x) == PropertyFlags::NoValidConversion ||
-		propertyDouble(qde, "y", &y) == PropertyFlags::NoValidConversion ||
-		propertyDouble(qde, "width", &w) == PropertyFlags::NoValidConversion ||
-		propertyDouble(qde, "height", &h) == PropertyFlags::NoValidConversion)
+	if (QETXML::propertyDouble(qde, "x", &x) == QETXML::PropertyFlags::NoValidConversion ||
+		QETXML::propertyDouble(qde, "y", &y) == QETXML::PropertyFlags::NoValidConversion ||
+		QETXML::propertyDouble(qde, "width", &w) == QETXML::PropertyFlags::NoValidConversion ||
+		QETXML::propertyDouble(qde, "height", &h) == QETXML::PropertyFlags::NoValidConversion)
 		return false;
 
 	m_rect = QRectF(mapFromScene(x, y), QSizeF(w, h) );
 
 	m_start_angle = 0;
-	if (propertyDouble(qde, "start", &m_start_angle)  == PropertyFlags::NoValidConversion)
+	if (QETXML::propertyDouble(qde, "start", &m_start_angle)  == QETXML::PropertyFlags::NoValidConversion)
 		return false;
 	m_start_angle *= 16;
 
 	m_span_angle = -1440;
-	if (propertyDouble(qde, "angle", &m_span_angle) == PropertyFlags::NoValidConversion)
+	if (QETXML::propertyDouble(qde, "angle", &m_span_angle) == QETXML::PropertyFlags::NoValidConversion)
 		return false;
 	m_span_angle *= 16;
 
@@ -151,12 +149,12 @@ bool PartArc::fromXmlPriv(const QDomElement &qde) {
 
 bool PartArc::valideXml(QDomElement& element) {
 
-	if (propertyDouble(element, "x") == PropertyFlags::NoValidConversion ||
-		propertyDouble(element, "y") == PropertyFlags::NoValidConversion ||
-		propertyDouble(element, "width") == PropertyFlags::NoValidConversion ||
-		propertyDouble(element, "height") == PropertyFlags::NoValidConversion ||
-		propertyDouble(element, "start")  == PropertyFlags::NoValidConversion ||
-		propertyDouble(element, "angle") == PropertyFlags::NoValidConversion)
+	if (QETXML::propertyDouble(element, "x") == QETXML::PropertyFlags::NoValidConversion ||
+		QETXML::propertyDouble(element, "y") == QETXML::PropertyFlags::NoValidConversion ||
+		QETXML::propertyDouble(element, "width") == QETXML::PropertyFlags::NoValidConversion ||
+		QETXML::propertyDouble(element, "height") == QETXML::PropertyFlags::NoValidConversion ||
+		QETXML::propertyDouble(element, "start")  == QETXML::PropertyFlags::NoValidConversion ||
+		QETXML::propertyDouble(element, "angle") == QETXML::PropertyFlags::NoValidConversion)
 		return false;
 	return true;
 }
