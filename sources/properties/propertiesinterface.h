@@ -76,6 +76,13 @@ class PropertiesInterface
     void deleteUserProperties();
 
     /*!
+     * \brief removeProperty
+     * Remove property \p name
+     * \param name
+     */
+    void removeProperty(const QString& name);
+
+    /*!
      * \brief userPropertiesCount
      * Returns the number of user properties
      * \return
@@ -151,12 +158,26 @@ protected:
     void setUserProperty(const QString& key, const QVariant& value);
 
 public:
+	/*!
+	 * \brief integerS
+	 * Supported datatypes
+	 */
     static const QString integerS;
     static const QString doubleS;
     static const QString boolS;
     static const QString stringS;
     static const QString uuidS;
     static const QString colorS;
+
+	/*!
+	 * \brief translateSupportedDatatypes
+	 * Every Datatype can be translated so it is possible
+	 * to show the datatype in the current language
+	 * \param list
+	 * \return
+	 */
+    static QStringList translateSupportedDatatypes();
+    static QString translationToDatatype(const QString& name);
 
 private:
     virtual void toXmlPriv (QDomElement &e) const =0;
@@ -172,12 +193,5 @@ private:
     QHash<QString, QVariant> properties;
     QString mTagName{""};
 };
-
-static const QString integerS = "int";
-static const QString doubleS = "double";
-static const QString boolS = "bool";
-static const QString stringS = "string";
-static const QString uuidS = "uuid";
-static const QString colorS = "color";
 
 #endif // PROPERTIESINTERFACE_H

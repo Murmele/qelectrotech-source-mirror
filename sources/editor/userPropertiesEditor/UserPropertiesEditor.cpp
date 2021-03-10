@@ -26,8 +26,7 @@ namespace  {
             QVBoxLayout* layout = new QVBoxLayout();
 
             cb = new QComboBox(this);
-            QStringList trd = PropertiesInterface::supportedDatatypes();
-            cb->addItems(translateSupportedDatatypes(trd));
+            cb->addItems(PropertiesInterface::translateSupportedDatatypes());
             layout->addWidget(cb);
 
             le = new QLineEdit(tr("Property name"), this);
@@ -43,31 +42,7 @@ namespace  {
         };
 
         QString name() {return le->text();}
-        QString datatype() {return cb->currentText();}
-    private:
-        QStringList translateSupportedDatatypes(QStringList& list)
-        {
-            QStringList translated;
-            for (auto s: list)
-            {
-                QString trd;
-                if (s == PropertiesInterface::stringS)
-                    trd = tr("Integer");
-                else if (s == PropertiesInterface::doubleS)
-                    trd = tr("Double");
-                else if (s == PropertiesInterface::boolS)
-                    trd = tr("Boolean");
-                else if (s == PropertiesInterface::stringS)
-                    trd = tr("String");
-                else if (s == PropertiesInterface::colorS)
-                    trd = tr("Color");
-                else
-                    trd = "";
-                translated.append(trd);
-            }
-            return translated;
-        }
-
+        QString datatype() {return PropertiesInterface::translationToDatatype(cb->currentText());}
     private:
         QLineEdit* le;
         QComboBox* cb;
@@ -76,31 +51,37 @@ namespace  {
 
 UserPropertiesEditor::UserPropertiesEditor(QWidget *parent): QWidget(parent)
 {
+    setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Expanding);
+
+
     mUserPropertiesTableView = new GenericTableView(this);
     mUserPropertiesModel = new GenericTableModel(mUserPropertiesTableView);
     QStringList header = {"Name", "Value"};
     mUserPropertiesModel->setHeader(header);
     mUserPropertiesTableView->setModel(mUserPropertiesModel);
+
+    QVBoxLayout* l = new QVBoxLayout();
+    l->addWidget(mUserPropertiesTableView);
+
+    setLayout(l);
+
+    connect(mUserPropertiesModel, &GenericTableModel::propertyAdded, this, &UserPropertiesEditor::propertyAdded);
+    connect(mUserPropertiesModel, &GenericTableModel::propertyRemoved, this, &UserPropertiesEditor::propertyRemoved);
+    connect(mUserPropertiesModel, &GenericTableModel::propertyUpdated, this, &UserPropertiesEditor::propertyUpdated);
 }
 
 QSharedPointer<PropertySelectionWrapper> UserPropertiesEditor::wrapperForDatatype(QString datatype)
 {
     if (datatype == PropertiesInterface::stringS)
-    {
         return QSharedPointer<PropertySelectionWrapper>(new PropertySelectionLineEdit(this));
-    }
     else if (datatype == PropertiesInterface::integerS)
-    {
         return QSharedPointer<PropertySelectionWrapper>(new PropertySelectionSpinBox(this));
-    }
     else if (datatype == PropertiesInterface::doubleS)
-    {
         return QSharedPointer<PropertySelectionWrapper>(new PropertySelectionDoubleSpinBox(this));
-    }
 //    else if (datatype == PropertiesInterface::colorS)
-//    {
 //        return QSharedDataPointer(PropertySelectionWrapper>(new PropertySelectionColor(this)));
-//    }
+//    else if (datatype == PropertiesInterface::boolS)
+//        return QSharedPointer<PropertySelectionWrapper>(new PropertySelectionCheckBox(this));
 
     return nullptr;
 }
@@ -124,9 +105,8 @@ void UserPropertiesEditor::setProperties(QHashIterator<QString, QVariant>& itera
 {
     mUserPropertiesModel->clear();
 
-    QVariant value;
     Property p;
-    while(iterator.findNext(value))
+    while(iterator.hasNext())
     {
         iterator.next();
         p.m_name = iterator.key();
@@ -141,4 +121,22 @@ void UserPropertiesEditor::setProperties(QHashIterator<QString, QVariant>& itera
 void UserPropertiesEditor::removeSelectedProperty()
 {
     mUserPropertiesModel->removeProperty(mUserPropertiesTableView->currentIndex().row());
+}
+
+void UserPropertiesEditor::updateProperty(const QString& key, const QVariant& value)
+{
+   mUserPropertiesModel->updateProperty(key, value);
+}
+
+const Property* UserPropertiesEditor::property(const QString& name) {
+    if (mUserPropertiesModel)
+    {
+        return mUserPropertiesModel->property(name);
+    }
+    return nullptr;
+}
+
+const QVector<Property*> UserPropertiesEditor::properties()
+{
+    return mUserPropertiesModel->properties();
 }

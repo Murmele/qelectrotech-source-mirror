@@ -162,6 +162,12 @@ void CustomElementGraphicPart::setUserProperty(const QString& name, const QVaria
     emit userPropertiesChanged(name);
 }
 
+void CustomElementGraphicPart::removeUserProperty(const QString& name)
+{
+    PropertiesInterface::removeProperty(name);
+    emit userPropertyRemoved(name);
+}
+
 QVariant CustomElementGraphicPart::getUserProperty(const QString& name) const {
    return PropertiesInterface::userProperty(name);
 }

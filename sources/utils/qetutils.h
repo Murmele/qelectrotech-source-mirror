@@ -27,6 +27,15 @@ namespace QETUtils
 {
 	QString marginsToString(const QMargins &margins);
 	QMargins marginsFromString(const QString &string);
+
+    class Lock {
+    public:
+        Lock(bool& variable): mVariable(variable) {mVariable = true;};
+        ~Lock() {mVariable = false;}
+
+    private:
+        bool& mVariable;
+    };
 }
 
 #endif // QETUTILS_H

@@ -631,3 +631,15 @@ void PartDynamicTextField::finishAlignment()
 
 	setPos(this -> pos() - diff);
 }
+
+void PartDynamicTextField::setUserProperty(const QString& name, const QVariant& value)
+{
+    PropertiesInterface::setUserProperty(name, value);
+    emit userPropertiesChanged(name);
+}
+
+void PartDynamicTextField::removeUserProperty(const QString& name)
+{
+    PropertiesInterface::removeProperty(name);
+    emit userPropertyRemoved(name);
+}

@@ -83,6 +83,13 @@ private slots:
         void updateUserProperties(const QString& key);
         void addProperty();
         void removeCurrSelectedProperty();
+        void userPropertyAdded(const QString& name);
+        void userPropertyRemoved(const QString& name);
+        void userPropertyUpdated(const QString& name);
+
+private:
+        void setupWidgetToEditorConnections();
+        void disconnectWidgetToEditorConnections();
 	
 protected:
         /*!
@@ -90,6 +97,7 @@ protected:
          * Connections from the part to the editor
          */
         QList<QMetaObject::Connection> m_change_connections;
+        QList<QMetaObject::Connection> mWidgetsToEditorConnections;
 		// attributes
 	private:
 		QETElementEditor *element_editor{nullptr};
@@ -101,5 +109,7 @@ protected:
          */
         QWidget* mEditorWidget{nullptr};
         UserPropertiesEditor* mUserPropertiesEditor{nullptr};
+
+        bool mIgnoreElementPropertyChanges{false};
 };
 #endif

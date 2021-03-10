@@ -103,17 +103,15 @@ bool TerminalEditor::setPart(CustomElementPart *new_part)
 bool TerminalEditor::setParts(QList<CustomElementPart *> parts)
 {
     m_terminals.clear();
+    disconnectChangeConnections();
     if (parts.isEmpty())
     {
-        if (m_part)
-            disconnect(m_part, &PartTerminal::orientationChanged, this, &TerminalEditor::updateForm);
         m_part = nullptr;
         return(true);
     }
 
     if (PartTerminal *part_terminal = static_cast<PartTerminal *>(parts.first()))
     {
-        disconnectChangeConnections();
         m_part = part_terminal;
         m_terminals.clear();
         m_terminals.append(part_terminal);

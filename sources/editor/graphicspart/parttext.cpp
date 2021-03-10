@@ -406,3 +406,15 @@ void PartText::endEdition()
 
 	setEditable(false);
 }
+
+void PartText::setUserProperty(const QString& name, const QVariant& value)
+{
+    PropertiesInterface::setUserProperty(name, value);
+    emit userPropertiesChanged(name);
+}
+
+void PartText::removeUserProperty(const QString& name)
+{
+    PropertiesInterface::removeProperty(name);
+    emit userPropertyRemoved(name);
+}

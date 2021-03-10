@@ -82,6 +82,8 @@ class PartDynamicTextField : public QGraphicsTextItem, public CustomElementPart
         void toSettings(QSettings &,const QString & = QString()) const override {/*TODO: implement*/}
         void fromSettings(QSettings &,const QString & = QString()) override{/*TODO: implement*/}
 
+        void setUserProperty(const QString& name, const QVariant& value);
+        void removeUserProperty(const QString& name);
 		DynamicElementTextItem::TextFrom textFrom() const;
 		void setTextFrom (DynamicElementTextItem::TextFrom text_from);
 		QString text() const;
@@ -113,6 +115,7 @@ signals:
 	* \param name: Property which changed. If QString is empty, all userProperties changed
 	*/
 	void userPropertiesChanged(const QString& name);
+    void userPropertyRemoved(const QString& name);
 
 	private:
 		void elementInfoChanged();

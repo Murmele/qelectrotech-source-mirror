@@ -19,6 +19,13 @@
 #include <QDebug>
 #include "../qetxml.h"
 
+const QString PropertiesInterface::integerS = "int";
+const QString PropertiesInterface::doubleS = "double";
+const QString PropertiesInterface::boolS = "bool";
+const QString PropertiesInterface::stringS = "string";
+const QString PropertiesInterface::uuidS = "uuid";
+const QString PropertiesInterface::colorS = "color";
+
 /*!
  * Available property types
  */
@@ -137,6 +144,11 @@ QString PropertiesInterface::orientationToString(Qet::Orientation o) {
 void PropertiesInterface::deleteUserProperties()
 {
     properties.clear();
+}
+
+void PropertiesInterface::removeProperty(const QString& name)
+{
+    properties.remove(name);
 }
 
 int PropertiesInterface::userPropertiesCount() const
@@ -271,4 +283,44 @@ bool PropertiesInterface::propertiesFromXml(const QDomElement& e)
     }
 
     return true;
+}
+
+QStringList PropertiesInterface::translateSupportedDatatypes()
+{
+    QStringList translated;
+    for (const auto &s: supportedDatatypes()) {
+        QString trd;
+        if (s == PropertiesInterface::stringS)
+            trd = QObject::tr("Integer");
+        else if (s == PropertiesInterface::doubleS)
+            trd = QObject::tr("Double");
+        else if (s == PropertiesInterface::boolS)
+            trd = QObject::tr("Boolean");
+        else if (s == PropertiesInterface::stringS)
+            trd = QObject::tr("String");
+        else if (s == PropertiesInterface::colorS)
+            trd = QObject::tr("Color");
+        else
+            trd = "";
+
+        if (!trd.isEmpty())
+            translated.append(trd);
+    }
+    return translated;
+}
+
+QString PropertiesInterface::translationToDatatype(const QString& name)
+{
+    if (name == QObject::tr("Integer"))
+        return PropertiesInterface::integerS;
+    else if (name == QObject::tr("Double"))
+        return PropertiesInterface::doubleS;
+    else if (name == QObject::tr("Boolean"))
+        return PropertiesInterface::boolS;
+    else if (name == QObject::tr("String"))
+        return PropertiesInterface::stringS;
+    else if (name == QObject::tr("Color"))
+        return PropertiesInterface::colorS;
+
+    return "";
 }
