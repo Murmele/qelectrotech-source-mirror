@@ -558,6 +558,7 @@ void QETElementEditor::updateInformations()
 	if (same_xml_name)
 	{
 		if (   selection_xml_name == "text"
+            || selection_xml_name == "terminal"
 			|| selection_xml_name == "dynamic_text"
 			|| selection_xml_name == "line"
 			|| selection_xml_name == "rect"
@@ -609,7 +610,7 @@ void QETElementEditor::updateInformations()
 			return;
 		}
 		else if (cep_list.length() == 1 &&
-				 (selection_xml_name == "polygon" || selection_xml_name == "terminal"))
+                 (selection_xml_name == "polygon"))
 		{
 #if TODO_LIST
 #pragma message("@TODO maybe allowing multipart edit when number of points is the same?")

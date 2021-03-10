@@ -41,12 +41,14 @@ class TerminalEditor : public ElementItemEditor
 
         void updateFormPriv() override;
 		bool setPart(CustomElementPart *new_part) override;
+        bool setParts(QList<CustomElementPart *> parts);
 		CustomElementPart *currentPart() const override;
-		QList<CustomElementPart *> currentParts() const override {return QList<CustomElementPart *>();}
+        QList<CustomElementPart*> currentParts() const override;
 
     private:
 		void init();
-		void posEdited();
+        void xPosEdited();
+        void yPosEdited();
 		void orientationEdited();
 		void nameEdited();
 		void typeEdited();
@@ -57,6 +59,7 @@ class TerminalEditor : public ElementItemEditor
         Ui::TerminalEditor *ui;
         QVector<QMetaObject::Connection> m_editor_connections;
         PartTerminal *m_part{nullptr};
+        QList <PartTerminal *> m_terminals;
 		bool m_locked = false;
 };
 
