@@ -290,7 +290,7 @@ QStringList PropertiesInterface::translateSupportedDatatypes()
     QStringList translated;
     for (const auto &s: supportedDatatypes()) {
         QString trd;
-        if (s == PropertiesInterface::stringS)
+        if (s == PropertiesInterface::integerS)
             trd = QObject::tr("Integer");
         else if (s == PropertiesInterface::doubleS)
             trd = QObject::tr("Double");
@@ -300,8 +300,10 @@ QStringList PropertiesInterface::translateSupportedDatatypes()
             trd = QObject::tr("String");
         else if (s == PropertiesInterface::colorS)
             trd = QObject::tr("Color");
-        else
+        else {
+            assert(false); // should never occur. Then it must be implemented
             trd = "";
+        }
 
         if (!trd.isEmpty())
             translated.append(trd);

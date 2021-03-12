@@ -24,190 +24,7 @@
 #include "graphicspart/partdynamictextfield.h"
 #include "userPropertiesEditor/UserPropertiesEditor.h"
 #include "userPropertiesEditor/GenericTableView/lib/property.h"
-
-class UserPropertyUndoCommand: public QUndoCommand
-{
-public:
-    UserPropertyUndoCommand(const QList<CustomElementPart*>& parts): mParts(parts)
-    {
-
-    }
-    virtual void redo() = 0;
-    virtual void undo() = 0;
-
-    void addUserProperty(const QString& name, const QVariant& value)
-    {
-        for (auto part: mParts) {
-
-            CustomElementPart::Type type = part->elementType();
-
-            // Problem is that PartText and PartDynamicTextEdit derive not from
-            // Custom ElementGraphicPart
-            if (type == CustomElementPart::Type::ElementGraphics) {
-                auto g = dynamic_cast<CustomElementGraphicPart*>(part);
-                g->setUserProperty(name, value);
-            } else if (type == CustomElementPart::Type::Text) {
-
-                auto t = dynamic_cast<QGraphicsTextItem*>(part);
-                if (t->type() == QGraphicsItem::UserType + 1110) {
-                    // PartDynamicTextField
-                    auto pd = static_cast<PartDynamicTextField*>(t);
-                    pd->setUserProperty(name, value);
-                }
-                else if (t->type() == QGraphicsItem::UserType + 1107) {
-                    // PartText
-                    auto pt = static_cast<PartText*>(t);
-                    pt->setUserProperty(name, value);
-                }
-
-            } else {
-                qDebug() << "ElementItemEditor::setUpChangeConnections(): Should be unreachable!";
-            }
-        }
-    }
-    void removeUserProperty(const QString& name)
-    {
-        for (auto part: mParts) {
-
-            CustomElementPart::Type type = part->elementType();
-
-            // Problem is that PartText and PartDynamicTextEdit derive not from
-            // Custom ElementGraphicPart
-            if (type == CustomElementPart::Type::ElementGraphics) {
-                auto g = dynamic_cast<CustomElementGraphicPart*>(part);
-                g->removeUserProperty(name);
-            } else if (type == CustomElementPart::Type::Text) {
-
-                auto t = dynamic_cast<QGraphicsTextItem*>(part);
-                if (t->type() == QGraphicsItem::UserType + 1110) {
-                    // PartDynamicTextField
-                    auto pd = static_cast<PartDynamicTextField*>(t);
-                    pd->removeUserProperty(name);
-                }
-                else if (t->type() == QGraphicsItem::UserType + 1107) {
-                    // PartText
-                    auto pt = static_cast<PartText*>(t);
-                    pt->removeUserProperty(name);
-                }
-
-            } else {
-                qDebug() << "ElementItemEditor::setUpChangeConnections(): Should be unreachable!";
-            }
-        }
-    }
-protected:
-    QList<CustomElementPart*> mParts;
-    QString mName;
-};
-
-class AddUserPropertyUndoCommand: public UserPropertyUndoCommand
-{
-public:
-    AddUserPropertyUndoCommand(const QList<CustomElementPart*>& parts, const QString& name, const QVariant value):
-        UserPropertyUndoCommand(parts) {
-        mName = name;
-        mValue = value;
-    }
-    void redo()
-    {
-        addUserProperty(mName, mValue);
-    }
-    void undo()
-    {
-        removeUserProperty(mName);
-    }
-private:
-    QVariant mValue;
-};
-
-class RemoveUserPropertyUndoCommand: public UserPropertyUndoCommand
-{
-public:
-    RemoveUserPropertyUndoCommand(const QList<CustomElementPart*>& parts, const QString& name):
-        UserPropertyUndoCommand(parts) {
-        mName = name;
-    }
-    void redo()
-    {
-        saveProperties();
-        removeUserProperty(mName);
-    }
-    void undo()
-    {
-        restoreProperties();
-    }
-
-    void saveProperties() {
-        QVariant value;
-        for (auto part: mParts) {
-
-            CustomElementPart::Type type = part->elementType();
-
-            // Problem is that PartText and PartDynamicTextEdit derive not from
-            // Custom ElementGraphicPart
-            if (type == CustomElementPart::Type::ElementGraphics) {
-                auto g = dynamic_cast<CustomElementGraphicPart*>(part);
-                value = g->userProperty(mName);
-            } else if (type == CustomElementPart::Type::Text) {
-
-                auto t = dynamic_cast<QGraphicsTextItem*>(part);
-                if (t->type() == QGraphicsItem::UserType + 1110) {
-                    // PartDynamicTextField
-                    auto pd = static_cast<PartDynamicTextField*>(t);
-                    value = pd->userProperty(mName);
-                }
-                else if (t->type() == QGraphicsItem::UserType + 1107) {
-                    // PartText
-                    auto pt = static_cast<PartText*>(t);
-                    value = pt->userProperty(mName);
-                }
-
-            } else {
-                qDebug() << "ElementItemEditor::setUpChangeConnections(): Should be unreachable!";
-            }
-
-            mValues.append(value);
-        }
-    }
-
-    void restoreProperties()
-    {
-        CustomElementPart* part;
-        for (int i=0; i < mParts.count(); i++) {
-            if (mValues[i].isNull())
-                continue;
-
-            part = mParts[i];
-            CustomElementPart::Type type = part->elementType();
-
-            // Problem is that PartText and PartDynamicTextEdit derive not from
-            // Custom ElementGraphicPart
-            if (type == CustomElementPart::Type::ElementGraphics) {
-                auto g = dynamic_cast<CustomElementGraphicPart*>(part);
-                g->setUserProperty(mName, mValues[i]);
-            } else if (type == CustomElementPart::Type::Text) {
-
-                auto t = dynamic_cast<QGraphicsTextItem*>(part);
-                if (t->type() == QGraphicsItem::UserType + 1110) {
-                    // PartDynamicTextField
-                    auto pd = static_cast<PartDynamicTextField*>(t);
-                    pd->setUserProperty(mName, mValues[i]);
-                }
-                else if (t->type() == QGraphicsItem::UserType + 1107) {
-                    // PartText
-                    auto pt = static_cast<PartText*>(t);
-                    pt->setUserProperty(mName, mValues[i]);
-                }
-
-            } else {
-                qDebug() << "restoreProperties(): Should be unreachable!";
-            }
-        }
-    }
-
-private:
-    QList<QVariant> mValues;
-};
+#include "userpropertyundocommand.h"
 
 /**
 	Constructeur
@@ -346,7 +163,13 @@ void ElementItemEditor::userPropertyRemoved(const QString& name)
 
 void ElementItemEditor::userPropertyUpdated(const QString& name)
 {
+    auto parts = currentParts();
+    if (parts.isEmpty())
+        return;
+
     QETUtils::Lock lock(mIgnoreElementPropertyChanges);
+    QVariant value = mUserPropertiesEditor->property(name)->m_value;
+    undoStack().push(new UpdateUserPropertyUndoCommand(parts, name, value));
 }
 
 void ElementItemEditor::setUpChangeConnections()

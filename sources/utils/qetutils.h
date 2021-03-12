@@ -28,6 +28,16 @@ namespace QETUtils
 	QString marginsToString(const QMargins &margins);
 	QMargins marginsFromString(const QString &string);
 
+    /*!
+     * \brief The Lock class
+     * Mechanism to not have to do locking and unlocking like
+     * lock = true;
+     * ... do something
+     * lock = false;
+     * but only creating a local variable of this type:
+     * Lock(lock);
+     * This will unlock as soon as the variable Lock will be deleted
+     */
     class Lock {
     public:
         Lock(bool& variable): mVariable(variable) {mVariable = true;};

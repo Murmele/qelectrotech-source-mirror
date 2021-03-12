@@ -29,7 +29,7 @@ signals:
     void propertyUpdated(const QString& name);
     void propertyAdded(const QString& name);
 private:
-    QSharedPointer<PropertySelectionWrapper> wrapperForDatatype(QString datatype);
+    void addDatatype(const QString &datatype);
 private:
     GenericTableView* mUserPropertiesTableView{nullptr};
     GenericTableModel* mUserPropertiesModel{nullptr};

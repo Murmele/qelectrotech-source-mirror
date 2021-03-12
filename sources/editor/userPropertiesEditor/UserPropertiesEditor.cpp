@@ -4,6 +4,7 @@
 #include "GenericTableView/lib/Wrapper/propertyselectionlineedit.h"
 #include "GenericTableView/lib/Wrapper/propertyselectionspinbox.h"
 #include "GenericTableView/lib/Wrapper/propertyselectiondoublespinbox.h"
+#include "GenericTableView/lib/wrappermanager.h"
 
 #include "../../properties/propertiesinterface.h"
 
@@ -68,22 +69,26 @@ UserPropertiesEditor::UserPropertiesEditor(QWidget *parent): QWidget(parent)
     connect(mUserPropertiesModel, &GenericTableModel::propertyAdded, this, &UserPropertiesEditor::propertyAdded);
     connect(mUserPropertiesModel, &GenericTableModel::propertyRemoved, this, &UserPropertiesEditor::propertyRemoved);
     connect(mUserPropertiesModel, &GenericTableModel::propertyUpdated, this, &UserPropertiesEditor::propertyUpdated);
+
+    for (auto prop: PropertiesInterface::supportedDatatypes())
+        addDatatype(prop);
 }
 
-QSharedPointer<PropertySelectionWrapper> UserPropertiesEditor::wrapperForDatatype(QString datatype)
+void UserPropertiesEditor::addDatatype(const QString& datatype)
 {
-    if (datatype == PropertiesInterface::stringS)
-        return QSharedPointer<PropertySelectionWrapper>(new PropertySelectionLineEdit(this));
-    else if (datatype == PropertiesInterface::integerS)
-        return QSharedPointer<PropertySelectionWrapper>(new PropertySelectionSpinBox(this));
-    else if (datatype == PropertiesInterface::doubleS)
-        return QSharedPointer<PropertySelectionWrapper>(new PropertySelectionDoubleSpinBox(this));
-//    else if (datatype == PropertiesInterface::colorS)
-//        return QSharedDataPointer(PropertySelectionWrapper>(new PropertySelectionColor(this)));
-//    else if (datatype == PropertiesInterface::boolS)
-//        return QSharedPointer<PropertySelectionWrapper>(new PropertySelectionCheckBox(this));
+    if (WrapperManager::instance()->wrapperWidget(datatype))
+        return; // Datatype is already linked to a Wrapper, so no need to do it again
 
-    return nullptr;
+    if (datatype == PropertiesInterface::stringS)
+        WrapperManager::instance()->addWrapperWidget(datatype, QSharedPointer<PropertySelectionWrapper>(new PropertySelectionLineEdit(this)));
+    else if (datatype == PropertiesInterface::integerS)
+        WrapperManager::instance()->addWrapperWidget(datatype, QSharedPointer<PropertySelectionWrapper>(new PropertySelectionSpinBox(this)));
+    else if (datatype == PropertiesInterface::doubleS)
+        WrapperManager::instance()->addWrapperWidget(datatype, QSharedPointer<PropertySelectionWrapper>(new PropertySelectionDoubleSpinBox(this)));
+//    else if (datatype == PropertiesInterface::colorS)
+//              WrapperManager::instance()->addWrapperWidget(datatype, QSharedPointer<PropertySelectionWrapper>(new PropertySelectionColor(this)));
+//    else if (datatype == PropertiesInterface::boolS)
+//              WrapperManager::instance()->addWrapperWidget(datatype, QSharedPointer<PropertySelectionWrapper>(new PropertySelectionCheckBox(this)));
 }
 
 void UserPropertiesEditor::addProperty()
@@ -94,26 +99,22 @@ void UserPropertiesEditor::addProperty()
 
     QString name = dialog.name();
     QString datatype = dialog.datatype();
-
-    Property p(name, datatype);
-    p.wrapper = wrapperForDatatype(datatype);
-
-    mUserPropertiesModel->appendProperty(p);
+    mUserPropertiesModel->appendProperty(new Property(name, datatype));
 }
 
 void UserPropertiesEditor::setProperties(QHashIterator<QString, QVariant>& iterator)
 {
     mUserPropertiesModel->clear();
 
-    Property p;
+    Property* p;
     while(iterator.hasNext())
     {
         iterator.next();
-        p.m_name = iterator.key();
-        p.m_value = iterator.value();
-        p.m_datatype = PropertiesInterface::QVariantTypeToString(p.m_value);
-        p.m_required = false;
-        p.wrapper = wrapperForDatatype(p.m_datatype);
+        p = new Property();
+        p->m_name = iterator.key();
+        p->m_value = iterator.value();
+        p->m_datatype = PropertiesInterface::QVariantTypeToString(p->m_value);
+        p->m_required = false;
         mUserPropertiesModel->appendProperty(p);
     }
 }
