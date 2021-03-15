@@ -82,7 +82,6 @@ Conductor::Conductor(Terminal *p1, Terminal* p2) :
 	terminal1(p1),
 	terminal2(p2)
 {
-    setTagName("conductor");
 		//set Zvalue at 11 to be upper than the DiagramImageItem and element
 	setZValue(11);
 	m_previous_z_value = zValue();
@@ -965,7 +964,7 @@ void Conductor::pointsToSegments(const QList<QPointF>& points_list) {
 	@param dom_element
 	@return true is loading success else return false
 */
-bool Conductor::fromXmlPriv(const QDomElement &dom_element)
+bool Conductor::fromXml(const QDomElement &dom_element)
 {
 	double x=0, y=0;
 	QETXML::propertyDouble(dom_element, "x", &x);
@@ -993,7 +992,7 @@ bool Conductor::fromXmlPriv(const QDomElement &dom_element)
 
 // does not support legacy method
 /*!
-    @brief Conductor::toXmlPriv
+    @brief Conductor::toXml
 	Exporte les caracteristiques du conducteur sous forme d'une element XML.
 	@param dom_document :
 	Le document XML a utiliser pour creer l'element XML
@@ -1002,8 +1001,9 @@ bool Conductor::fromXmlPriv(const QDomElement &dom_element)
 	bornes dans le document XML et leur adresse en memoire
 	@return Un element XML representant le conducteur
 */
-void Conductor::toXmlPriv(QDomElement& dom_element) const {
+QDomElement Conductor::toXml(QDomDocument& doc) const {
 
+    QDomElement dom_element = doc.createElement("conductor");
     dom_element.setAttribute("x", QString::number(pos().x()));
     dom_element.setAttribute("y", QString::number(pos().y()));
 
@@ -1039,7 +1039,6 @@ void Conductor::toXmlPriv(QDomElement& dom_element) const {
             dom_element.appendChild(current_segment);
         }
     }
-    QDomDocument doc = dom_element.ownerDocument();
     QDomElement dom_seq = m_autoNum_seq.toXml(doc);
     dom_element.appendChild(dom_seq);
 
@@ -1061,6 +1060,8 @@ void Conductor::toXmlPriv(QDomElement& dom_element) const {
     }
     if(m_text_item->wasRotateByUser())
         dom_element.setAttribute("rotation", QString::number(m_text_item->rotation()));
+
+    return dom_element;
 }
 
 /**
