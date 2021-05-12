@@ -80,7 +80,7 @@ QStringList PropertiesInterface::supportedDatatypes() {
     default:
         break;
     }
-    return "";
+    return stringS; // String is always possible
 }
 
 QDomElement PropertiesInterface::toXml (QDomDocument &xml_document) const
