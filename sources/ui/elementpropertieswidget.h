@@ -58,9 +58,9 @@ class ElementPropertiesWidget : public AbstractElementPropertiesEditorWidget
 
 	private:
 		Diagram *m_diagram;
-		QTabWidget *m_tab;
+        QTabWidget *m_tab{nullptr};
 		QList <AbstractElementPropertiesEditorWidget *> m_list_editor;
-		QWidget *m_general_widget;
+        QWidget *m_general_widget{nullptr};
 };
 
 #endif // ELEMENTPROPERTIESWIDGET_H

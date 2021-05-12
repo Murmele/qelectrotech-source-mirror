@@ -27,6 +27,7 @@ class Element;
 class QUndoCommand;
 class ElementInfoPartWidget;
 class ChangeElementInformationCommand;
+class UserPropertiesEditor;
 
 namespace Ui {
 	class ElementInfoWidget;
@@ -70,9 +71,10 @@ class ElementInfoWidget : public AbstractElementPropertiesEditorWidget
 		//ATTRIBUTES
 	private:
 		Ui::ElementInfoWidget           *ui;
-		QList <ElementInfoPartWidget *>  m_eipw_list;
+        QStringList mKeys;
 		bool m_first_activation;
 		bool m_ui_builded = false;
+        UserPropertiesEditor* mEditor{nullptr};
 };
 
 #endif // ELEMENTINFOWIDGET_H

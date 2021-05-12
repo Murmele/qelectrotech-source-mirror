@@ -42,9 +42,7 @@
 ElementPropertiesWidget::ElementPropertiesWidget(Element *elmt,
 						 QWidget *parent) :
 	AbstractElementPropertiesEditorWidget (parent),
-	m_diagram (elmt->diagram()),
-	m_tab (nullptr),
-	m_general_widget(nullptr)
+    m_diagram (elmt->diagram())
 {
 	buildGui();
 	setElement(elmt);
@@ -62,9 +60,7 @@ ElementPropertiesWidget::ElementPropertiesWidget(Element *elmt,
 */
 ElementPropertiesWidget::ElementPropertiesWidget(DynamicElementTextItem *text,
 						 QWidget *parent) :
-	AbstractElementPropertiesEditorWidget (parent),
-	m_tab (nullptr),
-	m_general_widget(nullptr)
+    AbstractElementPropertiesEditorWidget (parent)
 {
 	if(text->parentElement())
 	{
@@ -86,9 +82,7 @@ ElementPropertiesWidget::ElementPropertiesWidget(DynamicElementTextItem *text,
 */
 ElementPropertiesWidget::ElementPropertiesWidget(ElementTextItemGroup *group,
 						 QWidget *parent) :
-	AbstractElementPropertiesEditorWidget (parent),
-	m_tab (nullptr),
-	m_general_widget(nullptr)
+    AbstractElementPropertiesEditorWidget (parent)
 {
 	if(group->parentItem() && group->parentItem()->type() == Element::Type)
 	{

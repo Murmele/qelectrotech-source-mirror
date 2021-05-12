@@ -57,7 +57,7 @@ UserPropertiesEditor::UserPropertiesEditor(QWidget *parent): QWidget(parent)
 
     mUserPropertiesTableView = new GenericTableView(this);
     mUserPropertiesModel = new GenericTableModel(mUserPropertiesTableView);
-    QStringList header = {"Name", "Value"};
+    QStringList header = {tr("Name"), tr("Value")};
     mUserPropertiesModel->setHeader(header);
     mUserPropertiesTableView->setModel(mUserPropertiesModel);
 
@@ -91,6 +91,11 @@ void UserPropertiesEditor::addDatatype(const QString& datatype)
 //              WrapperManager::instance()->addWrapperWidget(datatype, QSharedPointer<PropertySelectionWrapper>(new PropertySelectionCheckBox(this)));
 }
 
+void UserPropertiesEditor::clearModel()
+{
+    mUserPropertiesModel->clear();
+}
+
 void UserPropertiesEditor::addProperty()
 {
     PropertyDialog dialog(this);
@@ -102,21 +107,30 @@ void UserPropertiesEditor::addProperty()
     mUserPropertiesModel->appendProperty(new Property(name, datatype));
 }
 
-void UserPropertiesEditor::setProperties(QHashIterator<QString, QVariant>& iterator)
+void UserPropertiesEditor::addProperty(const QString& name, const QVariant& value)
 {
-    mUserPropertiesModel->clear();
+    Property* p = new Property();
+    p->m_name = name;
+    p->m_value = value;
+    p->m_datatype = PropertiesInterface::QVariantTypeToString(p->m_value);
+    p->m_required = false;
+    mUserPropertiesModel->appendProperty(p);
+}
 
-    Property* p;
+void UserPropertiesEditor::addProperty(QHashIterator<QString, QVariant>& iterator)
+{
     while(iterator.hasNext())
     {
         iterator.next();
-        p = new Property();
-        p->m_name = iterator.key();
-        p->m_value = iterator.value();
-        p->m_datatype = PropertiesInterface::QVariantTypeToString(p->m_value);
-        p->m_required = false;
-        mUserPropertiesModel->appendProperty(p);
+        addProperty(iterator.key(), iterator.value());
     }
+}
+
+
+void UserPropertiesEditor::setProperties(QHashIterator<QString, QVariant>& iterator)
+{
+    clearModel();
+    addProperty(iterator);
 }
 
 void UserPropertiesEditor::removeSelectedProperty()

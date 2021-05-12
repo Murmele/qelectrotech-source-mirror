@@ -156,6 +156,12 @@ void CustomElementGraphicPart::setAntialiased(const bool b)
 	update();
 }
 
+void CustomElementGraphicPart::addUserProperty(const QString& name, const QVariant& value)
+{
+    PropertiesInterface::setUserProperty(name, value);
+    emit userPropertyAdded(name);
+}
+
 void CustomElementGraphicPart::setUserProperty(const QString& name, const QVariant& value)
 {
     PropertiesInterface::setUserProperty(name, value);

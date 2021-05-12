@@ -183,6 +183,8 @@ void ElementItemEditor::setUpChangeConnections()
     if (type == CustomElementPart::Type::ElementGraphics) {
         auto g = dynamic_cast<CustomElementGraphicPart*>(part);
         m_change_connections << connect(g, &CustomElementGraphicPart::userPropertiesChanged, this, &ElementItemEditor::updateUserProperties);
+        m_change_connections << connect(g, &CustomElementGraphicPart::userPropertyAdded, this, &ElementItemEditor::updateUserProperties);
+        m_change_connections << connect(g, &CustomElementGraphicPart::userPropertyRemoved, this, &ElementItemEditor::updateUserProperties);
     } else if (type == CustomElementPart::Type::Text) {
 
         auto t = dynamic_cast<QGraphicsTextItem*>(part);
@@ -190,12 +192,16 @@ void ElementItemEditor::setUpChangeConnections()
             // PartDynamicTextField
             auto pd = static_cast<PartDynamicTextField*>(t);
             m_change_connections << connect(pd, &PartDynamicTextField::userPropertiesChanged, this, &ElementItemEditor::updateUserProperties);
+            m_change_connections << connect(pd, &PartDynamicTextField::userPropertyAdded, this, &ElementItemEditor::updateUserProperties);
+            m_change_connections << connect(pd, &PartDynamicTextField::userPropertyRemoved, this, &ElementItemEditor::updateUserProperties);
 
         }
         else if (t->type() == QGraphicsItem::UserType + 1107) {
             // PartText
             auto pt = static_cast<PartText*>(t);
             m_change_connections << connect(pt, &PartText::userPropertiesChanged, this, &ElementItemEditor::updateUserProperties);
+            m_change_connections << connect(pt, &PartText::userPropertyAdded, this, &ElementItemEditor::updateUserProperties);
+            m_change_connections << connect(pt, &PartText::userPropertyRemoved, this, &ElementItemEditor::updateUserProperties);
         }
 
     } else {

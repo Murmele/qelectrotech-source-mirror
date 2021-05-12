@@ -6,7 +6,12 @@
 
 class CustomElementPart;
 
-
+/*!
+ * \brief The UserPropertyUndoCommand class
+ * Base undo command to handle user properties
+ * Adding/Removing or editing of userproperties are derivatives of this class.
+ * See below
+ */
 class UserPropertyUndoCommand: public QUndoCommand
 {
 public:
@@ -20,6 +25,10 @@ public:
     void saveProperties(QList<QVariant>& values);
     void restoreProperties(const QList<QVariant>& values);
 protected:
+	/*!
+	 * \brief mParts
+	 * On these parts the undocommand is applied
+	 */
     QList<CustomElementPart*> mParts;
     QString mName;
 };
@@ -48,7 +57,9 @@ public:
         saveProperties(mValues);
         removeUserProperty(mName);
     };
-    virtual void undo() override {restoreProperties(mValues);};
+    virtual void undo() override {
+        restoreProperties(mValues);
+    };
 
 private:
     QList<QVariant> mValues;
@@ -63,7 +74,10 @@ public:
             mNewValue = value;
         }
 
-    virtual void redo() override {saveProperties(mOldValues);};
+    virtual void redo() override {
+        saveProperties(mOldValues);
+        setUserProperty(mName, mNewValue);
+    };
     virtual void undo() override {restoreProperties(mOldValues);};
 
 private:

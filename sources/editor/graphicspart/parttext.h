@@ -44,6 +44,7 @@ class PartText : public QGraphicsTextItem, public CustomElementPart {
          * \param name: Property which changed. If QString is empty, all userProperties changed
          */
         void userPropertiesChanged(const QString& name);
+        void userPropertyAdded(const QString& name);
         void userPropertyRemoved(const QString& name);
 
 		// constructors, destructor
@@ -80,6 +81,7 @@ class PartText : public QGraphicsTextItem, public CustomElementPart {
 		void setProperty(const char *name, const QVariant &value) override {QGraphicsTextItem::setProperty(name, value);}
 		QVariant property(const char *name) const override {return QGraphicsTextItem::property(name);}
         void setUserProperty(const QString& name, const QVariant& value);
+        void addUserProperty(const QString& name, const QVariant& value);
         void removeUserProperty(const QString& name);
 
 		qreal realSize() const {return real_font_size_;}

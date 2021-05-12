@@ -24,6 +24,8 @@
 #include "../ui_elementinfowidget.h"
 #include "../undocommand/changeelementinformationcommand.h"
 #include "elementinfopartwidget.h"
+#include "../editor/userPropertiesEditor/UserPropertiesEditor.h"
+#include "../editor/userPropertiesEditor/GenericTableView/lib/property.h"
 
 /**
 	@brief ElementInfoWidget::ElementInfoWidget
@@ -37,6 +39,8 @@ ElementInfoWidget::ElementInfoWidget(Element *elmt, QWidget *parent) :
 	m_first_activation (false)
 {
 	ui->setupUi(this);
+    mEditor = new UserPropertiesEditor(this);
+    ui->scroll_vlayout->addWidget(mEditor);
 	setElement(elmt);
 }
 
@@ -46,7 +50,6 @@ ElementInfoWidget::ElementInfoWidget(Element *elmt, QWidget *parent) :
 */
 ElementInfoWidget::~ElementInfoWidget()
 {
-	qDeleteAll(m_eipw_list);
 	delete ui;
 }
 
@@ -65,21 +68,21 @@ void ElementInfoWidget::setElement(Element *element)
 	m_element = element;
 	updateUi();
 
-	ElementInfoPartWidget *f = infoPartWidgetForKey("formula");
-	ElementInfoPartWidget *l = infoPartWidgetForKey("label");
+//	ElementInfoPartWidget *f = infoPartWidgetForKey("formula");
+//	ElementInfoPartWidget *l = infoPartWidgetForKey("label");
 
-	if (f && l)
-	{
-		if (f->text().isEmpty())
-			l->setEnabled(true);
-		else
-			l->setDisabled(true);
+//	if (f && l)
+//	{
+//		if (f->text().isEmpty())
+//			l->setEnabled(true);
+//		else
+//			l->setDisabled(true);
 
-		connect(f, &ElementInfoPartWidget::textChanged, [l](const QString text)
-		{
-			l->setEnabled(text.isEmpty()? true : false);
-		});
-	}
+//		connect(f, &ElementInfoPartWidget::textChanged, [l](const QString text)
+//		{
+//			l->setEnabled(text.isEmpty()? true : false);
+//		});
+//	}
 
 	connect(m_element.data(), &Element::elementInfoChange, this, &ElementInfoWidget::elementInfoChange);
 }
@@ -91,8 +94,8 @@ void ElementInfoWidget::setElement(Element *element)
 */
 void ElementInfoWidget::apply()
 {
-	if (QUndoCommand *undo = associatedUndo())
-		m_element -> diagram() -> undoStack().push(undo);
+    if (QUndoCommand *undo = associatedUndo())
+        m_element -> diagram() -> undoStack().push(undo);
 }
 
 /**
@@ -104,13 +107,27 @@ void ElementInfoWidget::apply()
 */
 QUndoCommand* ElementInfoWidget::associatedUndo() const
 {
-	DiagramContext new_info = currentInfo();
-	DiagramContext old_info = m_element -> elementInformations();
+    DiagramContext new_info = currentInfo();
+    DiagramContext old_info = m_element -> elementInformations();
 
-	if (old_info != new_info)
-		return (new ChangeElementInformationCommand(m_element, old_info, new_info));
+    QHash<QString, QVariant> newProperties;
+    for (auto p: mEditor->properties())
+    {
+        newProperties[p->m_name] = p->m_value;
+    }
 
-	return nullptr;
+    QHash<QString, QVariant> oldProperties;
+    QHashIterator<QString, QVariant> iterator = m_element->elementData().userProperties();
+    while (iterator.hasNext()) {
+        iterator.next();
+        oldProperties[iterator.key()] = iterator.value();
+    }
+
+
+    //if (old_info != new_info || newProperties != oldProperties)
+        //return (new ChangeElementInformationCommand(m_element, old_info, new_info, oldProperties, newProperties));
+
+    return nullptr;
 }
 
 /**
@@ -158,8 +175,8 @@ bool ElementInfoWidget::event(QEvent *event)
 */
 void ElementInfoWidget::enableLiveEdit()
 {
-	for (ElementInfoPartWidget *eipw : m_eipw_list)
-		connect(eipw, &ElementInfoPartWidget::textChanged, this, &ElementInfoWidget::apply);
+//	for (ElementInfoPartWidget *eipw : m_eipw_list)
+//		connect(eipw, &ElementInfoPartWidget::textChanged, this, &ElementInfoWidget::apply);
 }
 
 /**
@@ -168,8 +185,8 @@ void ElementInfoWidget::enableLiveEdit()
 */
 void ElementInfoWidget::disableLiveEdit()
 {
-	for (ElementInfoPartWidget *eipw : m_eipw_list)
-		disconnect(eipw, &ElementInfoPartWidget::textChanged, this, &ElementInfoWidget::apply);
+//	for (ElementInfoPartWidget *eipw : m_eipw_list)
+//		disconnect(eipw, &ElementInfoPartWidget::textChanged, this, &ElementInfoWidget::apply);
 }
 
 /**
@@ -178,20 +195,21 @@ void ElementInfoWidget::disableLiveEdit()
 */
 void ElementInfoWidget::buildInterface()
 {
-	QStringList keys;
-	auto type_ = m_element.data()->elementData().m_type;
-	if (type_ == ElementData::Terminale)
-		keys = QETInformation::terminalElementInfoKeys();
-	else
-		keys = QETInformation::elementInfoKeys();
+//	QStringList keys;
+//    // TODO: so everytime the type changes, buildInterface must be called!
+//	auto type_ = m_element.data()->elementData().m_type;
+//	if (type_ == ElementData::Terminale)
+//		keys = QETInformation::terminalElementInfoKeys();
+//	else
+//		keys = QETInformation::elementInfoKeys();
 
-	for (auto str : keys)
-	{
-		ElementInfoPartWidget *eipw = new ElementInfoPartWidget(str, QETInformation::translatedInfoKey(str), this);
-		ui->scroll_vlayout->addWidget(eipw);
-		m_eipw_list << eipw;
-	}
-	ui->scroll_vlayout->addStretch();
+//	for (auto str : keys)
+//	{
+//		ElementInfoPartWidget *eipw = new ElementInfoPartWidget(str, QETInformation::translatedInfoKey(str), this);
+//		ui->scroll_vlayout->addWidget(eipw);
+//		m_eipw_list << eipw;
+//	}
+//	ui->scroll_vlayout->addStretch();
 }
 
 /**
@@ -202,10 +220,10 @@ void ElementInfoWidget::buildInterface()
 */
 ElementInfoPartWidget *ElementInfoWidget::infoPartWidgetForKey(const QString &key) const
 {
-	for (auto eipw : m_eipw_list)
+    for (auto k : mKeys)
 	{
-		if (eipw->key() == key)
-			return eipw;
+        if (k == key)
+            return nullptr;
 	}
 
 	return nullptr;
@@ -226,10 +244,28 @@ void ElementInfoWidget::updateUi()
 	if (m_live_edit) disableLiveEdit();
 
 	DiagramContext element_info = m_element->elementInformations();
+
+    QStringList keys;
+    auto type_ = m_element.data()->elementData().m_type;
+    if (type_ == ElementData::Terminale)
+        mKeys = QETInformation::terminalElementInfoKeys();
+    else
+        mKeys = QETInformation::elementInfoKeys();
+
+    mEditor->clearModel();
+    QVariant value;
+    for (auto key : mKeys)
+    {
+        mEditor->addProperty(key, element_info[key]);
+    }
 	
-	for (ElementInfoPartWidget *eipw : m_eipw_list) {
-		eipw -> setText (element_info[eipw->key()].toString());
-	}
+//	for (ElementInfoPartWidget *eipw : m_eipw_list) {
+//		eipw -> setText (element_info[eipw->key()].toString());
+//	}
+
+    auto iterator = m_element->elementData().userProperties();
+    mEditor->addProperty(iterator);
+
 
 	if (m_live_edit) {
 		enableLiveEdit();
@@ -244,20 +280,11 @@ DiagramContext ElementInfoWidget::currentInfo() const
 {
 	DiagramContext info_;
 
-	for (ElementInfoPartWidget *eipw : m_eipw_list)
-	{
-
-			//add value only if they're something to store
-		if (!eipw->text().isEmpty())
-		{
-			QString txt = eipw->text();
-				//remove line feed and carriage return
-			txt.remove("\r");
-			txt.remove("\n");
-			info_.addValue(eipw->key(), txt);
-		}
-	}
-
+    for (auto key: mKeys) {
+        QString value = mEditor->property(key)->m_value.toString().remove("\r").remove("\n");
+        if (!value.isEmpty())
+            info_.addValue(key, value);
+    }
 	return info_;
 }
 
@@ -268,7 +295,7 @@ DiagramContext ElementInfoWidget::currentInfo() const
 */
 void ElementInfoWidget::firstActivated()
 {
-	m_eipw_list.first() -> setFocusTolineEdit();
+    //m_eipw_list.first() -> setFocusTolineEdit();
 }
 
 /**

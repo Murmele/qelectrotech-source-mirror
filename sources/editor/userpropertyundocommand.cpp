@@ -146,19 +146,31 @@ void UserPropertyUndoCommand::restoreProperties(const QList<QVariant>& values)
         // Custom ElementGraphicPart
         if (type == CustomElementPart::Type::ElementGraphics) {
             auto g = dynamic_cast<CustomElementGraphicPart*>(part);
-            g->setUserProperty(mName, values[i]);
+            if (g->userProperty(mName).isNull()) {
+                g->addUserProperty(mName, values[i]);
+            } else {
+                g->setUserProperty(mName, values[i]);
+            }
         } else if (type == CustomElementPart::Type::Text) {
 
             auto t = dynamic_cast<QGraphicsTextItem*>(part);
             if (t->type() == QGraphicsItem::UserType + 1110) {
                 // PartDynamicTextField
                 auto pd = static_cast<PartDynamicTextField*>(t);
-                pd->setUserProperty(mName, values[i]);
+                if (pd->userProperty(mName).isNull()) {
+                    pd->addUserProperty(mName, values[i]);
+                } else {
+                    pd->setUserProperty(mName, values[i]);
+                }
             }
             else if (t->type() == QGraphicsItem::UserType + 1107) {
                 // PartText
                 auto pt = static_cast<PartText*>(t);
-                pt->setUserProperty(mName, values[i]);
+                if (pt->userProperty(mName).isNull()) {
+                    pt->addUserProperty(mName, values[i]);
+                } else {
+                    pt->setUserProperty(mName, values[i]);
+                }
             }
 
         } else {

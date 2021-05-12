@@ -82,6 +82,7 @@ class PartDynamicTextField : public QGraphicsTextItem, public CustomElementPart
         void toSettings(QSettings &,const QString & = QString()) const override {/*TODO: implement*/}
         void fromSettings(QSettings &,const QString & = QString()) override{/*TODO: implement*/}
 
+        void addUserProperty(const QString& name, const QVariant& value);
         void setUserProperty(const QString& name, const QVariant& value);
         void removeUserProperty(const QString& name);
 		DynamicElementTextItem::TextFrom textFrom() const;
@@ -116,6 +117,7 @@ signals:
 	*/
 	void userPropertiesChanged(const QString& name);
     void userPropertyRemoved(const QString& name);
+    void userPropertyAdded(const QString& name);
 
 	private:
 		void elementInfoChanged();

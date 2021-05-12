@@ -30,6 +30,11 @@
 #include "ui/reportpropertiewidget.h"
 #include "ui/titleblockpropertieswidget.h"
 #include "ui/xrefpropertieswidget.h"
+#include "qetinformation.h"
+#include "qetxml.h"
+
+#include "editor/userPropertiesEditor/GenericTableView/lib/generictablemodel.h"
+#include "editor/userPropertiesEditor/GenericTableView/lib/generictableview.h"
 
 //#include "ui_autonumberingmanagementw.h"
 
@@ -656,3 +661,94 @@ void ProjectAutoNumConfigPage::changeToTab(int i)
 {
 	qDebug()<<"Q_UNUSED"<<i;
 }
+
+//---------------------------------------------------------------------------//
+// ProjectAutoNumConfigPage                                                  //
+//---------------------------------------------------------------------------//
+class ElementPropertyModel: public GenericTableModel
+{
+public:
+    ElementPropertyModel(Property& property)
+    {
+        m_header.append({tr("Name"), tr("Datatype"), tr("Default Value")});
+
+
+        emit headerDataChanged(Qt::Orientation::Horizontal, 0, m_header.length() - 1);
+    }
+
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override
+    {
+        return 3;
+    }
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
+    {
+        if (index.column() == 2)
+        return GenericTableModel::data(index, role);
+    }
+
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override
+    {
+
+    }
+private:
+};
+
+ProjectElementPropertiesPage::ProjectElementPropertiesPage (QETProject *project,
+                            QWidget *parent) :
+    ProjectConfigPage(project, parent)
+{
+    initWidgets();
+    readValuesFromProject();
+
+    for (auto key: QETInformation::elementEditorElementInfoKeys()) {
+        Property p(key, QETXML::stringS);
+        mDefaultProperties.append(p);
+    }
+}
+
+QString ProjectElementPropertiesPage::title() const
+{
+    return tr("Element Properties");
+}
+
+QIcon ProjectElementPropertiesPage::icon() const
+{
+    return QIcon (); //(QET::Icons::ElementProperties);
+}
+
+void ProjectElementPropertiesPage::applyProjectConf() {
+
+}
+
+void ProjectElementPropertiesPage::initWidgets()
+{
+    mPropertiesView = new GenericTableView(this);
+    mPropertiesModel = new GenericTableModel(mPropertiesView);
+    QStringList header = {tr("Name"), tr("Default Value")};
+    mPropertiesModel->setHeader(header);
+    mPropertiesView->setModel(mPropertiesModel);
+
+    QVBoxLayout* l = new QVBoxLayout();
+    l->addWidget(mPropertiesView);
+
+    setLayout(l);
+
+//    connect(mUserPropertiesModel, &GenericTableModel::propertyAdded, this, &UserPropertiesEditor::propertyAdded);
+//    connect(mUserPropertiesModel, &GenericTableModel::propertyRemoved, this, &UserPropertiesEditor::propertyRemoved);
+//    connect(mUserPropertiesModel, &GenericTableModel::propertyUpdated, this, &UserPropertiesEditor::propertyUpdated);
+
+//    for (auto prop: PropertiesInterface::supportedDatatypes())
+//        addDatatype(prop);
+}
+
+void ProjectElementPropertiesPage::initLayout()
+{}
+
+void ProjectElementPropertiesPage::readValuesFromProject()
+{
+
+}
+
+void ProjectElementPropertiesPage::adjustReadOnly()
+{}

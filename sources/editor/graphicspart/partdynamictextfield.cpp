@@ -638,6 +638,12 @@ void PartDynamicTextField::setUserProperty(const QString& name, const QVariant& 
     emit userPropertiesChanged(name);
 }
 
+void PartDynamicTextField::addUserProperty(const QString& name, const QVariant& value)
+{
+    PropertiesInterface::setUserProperty(name, value);
+    emit userPropertyAdded(name);
+}
+
 void PartDynamicTextField::removeUserProperty(const QString& name)
 {
     PropertiesInterface::removeProperty(name);

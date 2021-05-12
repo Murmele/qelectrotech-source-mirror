@@ -19,6 +19,8 @@
 #define PROJECTCONFIGPAGES_H
 #include "configpage.h"
 
+#include "editor/userPropertiesEditor/GenericTableView/lib/property.h"
+
 class QLabel;
 class QLineEdit;
 class QETProject;
@@ -31,6 +33,8 @@ class SelectAutonumW;
 class FolioAutonumberingW;
 class FormulaAutonumberingW;
 class AutoNumberingManagementW;
+class GenericTableView;
+class GenericTableModel;
 
 /**
 	@brief The ProjectConfigPage class
@@ -165,6 +169,33 @@ class ProjectAutoNumConfigPage : public ProjectConfigPage {
 		FolioAutonumberingW   *m_faw;
 		AutoNumberingManagementW *m_amw;
 
+};
+
+/*!
+ * \brief The ProjectElementPropertiesPage class
+ * Config page for configuring the default properties of every element
+ */
+class ProjectElementPropertiesPage: public ProjectConfigPage
+{
+public:
+	ProjectElementPropertiesPage(QETProject *, QWidget * = nullptr);
+
+	// methods
+public:
+	QString title() const override;
+	QIcon icon() const override;
+	void applyProjectConf() override;
+
+protected:
+	virtual void initWidgets() override;
+	virtual void initLayout() override;
+	virtual void readValuesFromProject()  override;
+	virtual void adjustReadOnly() override;
+
+private:
+    QVector<Property> mDefaultProperties;
+    GenericTableView* mPropertiesView{nullptr};
+    GenericTableModel* mPropertiesModel{nullptr};
 };
 
 #endif

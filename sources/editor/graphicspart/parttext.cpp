@@ -413,6 +413,12 @@ void PartText::setUserProperty(const QString& name, const QVariant& value)
     emit userPropertiesChanged(name);
 }
 
+void PartText::addUserProperty(const QString& name, const QVariant& value)
+{
+    PropertiesInterface::setUserProperty(name, value);
+    emit userPropertyAdded(name);
+}
+
 void PartText::removeUserProperty(const QString& name)
 {
     PropertiesInterface::removeProperty(name);

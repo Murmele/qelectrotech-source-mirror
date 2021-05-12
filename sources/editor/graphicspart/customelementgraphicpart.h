@@ -290,6 +290,7 @@ class CustomElementGraphicPart : public QGraphicsObject, public CustomElementPar
 			//End of getter and setter
 
         /* User Properties */
+        void addUserProperty(const QString& name, const QVariant& value);
         void setUserProperty(const QString& name, const QVariant& value);
         QVariant getUserProperty(const QString& name) const;
         void removeUserProperty(const QString& name);
@@ -317,6 +318,7 @@ class CustomElementGraphicPart : public QGraphicsObject, public CustomElementPar
          * \brief userPropertiesChanged
          * \param name: Property which changed. If QString is empty, all userProperties changed
          */
+        void userPropertyAdded(const QString& name);
         void userPropertiesChanged(const QString& name);
         void userPropertyRemoved(const QString& name);
 
