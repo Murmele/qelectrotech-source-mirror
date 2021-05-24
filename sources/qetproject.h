@@ -25,6 +25,7 @@
 #include "dataBase/projectdatabase.h"
 #include "properties/reportproperties.h"
 #include "properties/xrefproperties.h"
+#include "properties/userelementproperties.h"
 #include "titleblock/templatescollection.h"
 #include "titleblockproperties.h"
 #ifdef BUILD_WITHOUT_KF5
@@ -114,8 +115,14 @@ class QETProject : public QObject
 
 		XRefProperties					defaultXRefProperties (const QString &type) const {return m_default_xref_properties[type];}
 		QHash <QString, XRefProperties> defaultXRefProperties() const					  {return m_default_xref_properties;}
+		QHash <QString, UserElementProperty> defaultUserElementProperties() const {return m_default_user_element_properties;}
+		QHash <QString, TerminalProperty> defaultUserTerminalProperties() const {return m_default_terminal_properties;}
 		void setDefaultXRefProperties(const QString& type, const XRefProperties &properties);
 		void setDefaultXRefProperties(QHash <QString, XRefProperties> hash);
+		void setDefaultUserElementProperties(const QString& type, const UserElementProperty &properties);
+		void setDefaultUserElementProperties(QHash<QString, UserElementProperty> hash);
+		void setDefaultUserTerminalProperties(const QString& type, const TerminalProperty &properties);
+		void setDefaultUserTerminalProperties(QHash<QString, TerminalProperty> hash);
 
 		QHash <QString, NumerotationContext> conductorAutoNum() const;
 		QHash <QString, NumerotationContext> elementAutoNum() const;
@@ -194,6 +201,8 @@ class QETProject : public QObject
 		void readOnlyChanged(QETProject *, bool);
 		void reportPropertiesChanged(const QString &old_str, const QString &new_str);
 		void XRefPropertiesChanged ();
+		void UserTerminalPropertiesChanged();
+		void UserElementPropertiesChanged();
 		void addAutoNumDiagram();
 		void elementAutoNumAdded(QString name);
 		void elementAutoNumRemoved(QString name);
@@ -255,7 +264,11 @@ class QETProject : public QObject
 		QString m_default_report_properties = ReportProperties::defaultProperties();
 			/// Default xref properties
 		QHash <QString, XRefProperties> m_default_xref_properties = XRefProperties::defaultProperties();
-			/// Embedded title block templates collection
+			/// Default user properties of an element
+		QHash <QString, UserElementProperty> m_default_user_element_properties = UserElementProperty::defaultProperties();
+
+		QHash <QString, TerminalProperty> m_default_terminal_properties = TerminalProperty::defaultProperties();
+		/// Embedded title block templates collection
 		TitleBlockTemplatesProjectCollection m_titleblocks_collection;
 			/// project-wide variables that will be made available to child diagrams
 		DiagramContext m_project_properties;

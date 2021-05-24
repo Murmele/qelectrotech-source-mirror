@@ -514,6 +514,28 @@ void QETProject::setDefaultXRefProperties(QHash<QString, XRefProperties> hash)
 	emit XRefPropertiesChanged();
 }
 
+void QETProject::setDefaultUserElementProperties(const QString& type, const UserElementProperty &properties) {
+	m_default_user_element_properties.insert(type, properties);
+	emit UserElementPropertiesChanged();
+}
+
+void QETProject::setDefaultUserElementProperties(QHash<QString, UserElementProperty> hash)
+{
+	m_default_user_element_properties.swap(hash);
+	emit UserElementPropertiesChanged();
+}
+
+void QETProject::setDefaultUserTerminalProperties(const QString& type, const TerminalProperty &properties) {
+	m_default_terminal_properties.insert(type, properties);
+	emit UserTerminalPropertiesChanged();
+}
+
+void QETProject::setDefaultUserTerminalProperties(QHash<QString, TerminalProperty> hash)
+{
+	m_default_terminal_properties.swap(hash);
+	emit UserTerminalPropertiesChanged();
+}
+
 /**
 	@brief QETProject::conductorAutoNum
 	@return All value of conductor autonum stored in project
@@ -1496,6 +1518,7 @@ void QETProject::readDefaultPropertiesXml(QDomDocument &xml_project)
 	default_conductor_properties_  = ConductorProperties:: defaultProperties();
 	m_default_report_properties	   = ReportProperties::	defaultProperties();
 	m_default_xref_properties	   = XRefProperties::	  defaultProperties();
+	m_default_user_element_properties = UserElementProperty::defaultProperties();
 
 		//Read values indicate in project
 	QDomElement border_elmt, titleblock_elmt, conductors_elmt, report_elmt, xref_elmt, conds_autonums, folio_autonums, element_autonums;

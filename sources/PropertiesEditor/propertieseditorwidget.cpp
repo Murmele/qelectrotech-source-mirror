@@ -24,8 +24,7 @@
 	@param parent : parent widget
 */
 PropertiesEditorWidget::PropertiesEditorWidget(QWidget *parent) :
-	QWidget(parent),
-	m_live_edit(false)
+    QWidget(parent)
 {}
 
 /**

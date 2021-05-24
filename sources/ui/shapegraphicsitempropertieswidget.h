@@ -25,6 +25,7 @@ namespace Ui {
 }
 
 class QetShapeItem;
+class UserPropertiesEditor;
 
 /**
 	@brief The ShapeGraphicsItemPropertiesWidget class
@@ -41,6 +42,7 @@ class ShapeGraphicsItemPropertiesWidget : public PropertiesEditorWidget
 
 		void setItem(QetShapeItem *shape);
 		void setItems(QList<QetShapeItem *> shapes_list);
+        void setupUi();
 
 	public slots:
 		void apply() override;
@@ -61,10 +63,11 @@ class ShapeGraphicsItemPropertiesWidget : public PropertiesEditorWidget
 
 		private:
 		Ui::ShapeGraphicsItemPropertiesWidget *ui;
-		QetShapeItem *m_shape;
+        QetShapeItem *m_shape{nullptr};
 		QList <QPointer<QetShapeItem>> m_shapes_list;
 		QList <QMetaObject::Connection> m_connect_list,
 										m_edit_connection;
+        UserPropertiesEditor* mUserPropertiesEditor{nullptr};
 };
 
 #endif // SHAPEGRAPHICSITEMPROPERTIESWIDGET_H

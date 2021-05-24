@@ -47,7 +47,7 @@ class PropertiesEditorWidget : public QWidget
 		virtual void disableLiveEdit() {}
 
 	protected:
-		bool m_live_edit;
+		bool m_live_edit{false};
 };
 
 #endif // PROPERTIESEDITORWIDGET_H

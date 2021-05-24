@@ -22,6 +22,7 @@
 #include "../diagram.h"
 #include "../qetgraphicsitem/qetshapeitem.h"
 #include "../ui_shapegraphicsitempropertieswidget.h"
+#include "../editor/userPropertiesEditor/UserPropertiesEditor.h"
 
 #include <QHash>
 
@@ -33,10 +34,9 @@
 */
 ShapeGraphicsItemPropertiesWidget::ShapeGraphicsItemPropertiesWidget(QetShapeItem *item, QWidget *parent) :
 	PropertiesEditorWidget(parent),
-	ui(new Ui::ShapeGraphicsItemPropertiesWidget),
-	m_shape(nullptr)
+    ui(new Ui::ShapeGraphicsItemPropertiesWidget)
 {
-	ui->setupUi(this);
+    setupUi();
 	setItem(item);
 }
 
@@ -44,8 +44,15 @@ ShapeGraphicsItemPropertiesWidget::ShapeGraphicsItemPropertiesWidget(QList<QetSh
 	PropertiesEditorWidget (parent),
 	ui(new Ui::ShapeGraphicsItemPropertiesWidget)
 {
-	ui->setupUi(this);
+    setupUi();
 	setItems(items_list);
+}
+
+void ShapeGraphicsItemPropertiesWidget::setupUi()
+{
+    ui->setupUi(this);
+    mUserPropertiesEditor = new UserPropertiesEditor(this, true);
+    ui->tabWidget->addTab(mUserPropertiesEditor, tr("UserProperties"));
 }
 
 /**

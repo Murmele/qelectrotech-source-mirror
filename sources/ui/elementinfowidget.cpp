@@ -39,7 +39,7 @@ ElementInfoWidget::ElementInfoWidget(Element *elmt, QWidget *parent) :
 	m_first_activation (false)
 {
 	ui->setupUi(this);
-    mEditor = new UserPropertiesEditor(this);
+    mEditor = new UserPropertiesEditor(this, true);
     ui->scroll_vlayout->addWidget(mEditor);
 	setElement(elmt);
 }
@@ -100,7 +100,7 @@ void ElementInfoWidget::apply()
 
 /**
 	@brief ElementInfoWidget::associatedUndo
-	If the edited info is different of the actual element info,
+    If the edited info is different of the current element info,
 	return a QUndoCommand with the change.
 	If no change return nullptr;
 	@return
@@ -117,15 +117,15 @@ QUndoCommand* ElementInfoWidget::associatedUndo() const
     }
 
     QHash<QString, QVariant> oldProperties;
-    QHashIterator<QString, QVariant> iterator = m_element->elementData().userProperties();
+    QHashIterator<QString, QVariant> iterator = m_element->elementData().userPropertiesIterator();
     while (iterator.hasNext()) {
         iterator.next();
         oldProperties[iterator.key()] = iterator.value();
     }
 
 
-    //if (old_info != new_info || newProperties != oldProperties)
-        //return (new ChangeElementInformationCommand(m_element, old_info, new_info, oldProperties, newProperties));
+    if (old_info != new_info || newProperties != oldProperties)
+        return (new ChangeElementInformationCommand(m_element, old_info, new_info));
 
     return nullptr;
 }
@@ -243,29 +243,29 @@ void ElementInfoWidget::updateUi()
 		//We disable live edit to avoid wrong undo when we fill the line edit with new text
 	if (m_live_edit) disableLiveEdit();
 
+    mEditor->clearModel();
+
 	DiagramContext element_info = m_element->elementInformations();
 
-    QStringList keys;
-    auto type_ = m_element.data()->elementData().m_type;
-    if (type_ == ElementData::Terminale)
-        mKeys = QETInformation::terminalElementInfoKeys();
-    else
-        mKeys = QETInformation::elementInfoKeys();
-
-    mEditor->clearModel();
-    QVariant value;
-    for (auto key : mKeys)
-    {
-        mEditor->addProperty(key, element_info[key]);
-    }
-	
-//	for (ElementInfoPartWidget *eipw : m_eipw_list) {
-//		eipw -> setText (element_info[eipw->key()].toString());
-//	}
-
-    auto iterator = m_element->elementData().userProperties();
+    auto iterator = m_element->elementData().userPropertiesIterator();
     mEditor->addProperty(iterator);
 
+
+    // Add userproperties at the end. If they already exist in the editor, the editor just skips them
+    auto type_ = m_element.data()->elementData().m_type;
+    if (type_ == ElementData::Terminale) {
+        QHashIterator<QString, TerminalProperty> i(m_element->diagram()->project()->defaultUserTerminalProperties());
+        while (i.hasNext()) {
+            i.next();
+            mEditor->addProperty(i.key(), i.value().value());
+        }
+    } else {
+        QHashIterator<QString, UserElementProperty> i(m_element->diagram()->project()->defaultUserElementProperties());
+        while (i.hasNext()) {
+            i.next();
+            mEditor->addProperty(i.key(), i.value().value());
+        }
+    }
 
 	if (m_live_edit) {
 		enableLiveEdit();

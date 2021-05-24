@@ -129,6 +129,7 @@ class ConductorProperties: public PropertiesInterface
 		void applyForEqualAttributes(QList<ConductorProperties> list);
 
 		static ConductorProperties defaultProperties();
+		void addUserProperty(const QString& name, const QVariant& value);
 
 		// operators
 		bool operator==(const ConductorProperties &) const;

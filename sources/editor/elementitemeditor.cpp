@@ -92,7 +92,7 @@ void ElementItemEditor::updateForm()
     CustomElementPart* part = currentPart();
     if (part)
     {
-        QHashIterator<QString, QVariant> iterator = part->userProperties();
+        auto iterator = part->userPropertiesIterator();
         disconnectWidgetToEditorConnections();
         mUserPropertiesEditor->setProperties(iterator);
         setupWidgetToEditorConnections();
@@ -120,14 +120,14 @@ void ElementItemEditor::setElementTypeName(const QString &name) {
 
 void ElementItemEditor::updateUserProperties(const QString& key)
 {
-    if (mIgnoreElementPropertyChanges)
-        return;
+//    if (mIgnoreElementPropertyChanges)
+//        return;
 
-    assert(currentPart());
-    if (!currentPart()->existUserProperty(key))
-        return;
+//    assert(currentPart());
+//    if (!currentPart()->existUserProperty(key))
+//        return;
 
-    mUserPropertiesEditor->updateProperty(key, currentPart()->userProperty(key));
+//    mUserPropertiesEditor->updateProperty(key, currentPart()->userProperty(key));
 }
 
 void ElementItemEditor::addProperty()
@@ -142,23 +142,23 @@ void ElementItemEditor::removeCurrSelectedProperty()
 
 void ElementItemEditor::userPropertyAdded(const QString& name)
 {
-    auto parts = currentParts();
-    if (parts.isEmpty())
-        return;
+//    auto parts = currentParts();
+//    if (parts.isEmpty())
+//        return;
 
-    QETUtils::Lock lock(mIgnoreElementPropertyChanges);
-    QVariant value = mUserPropertiesEditor->property(name)->m_value;
-    undoStack().push(new AddUserPropertyUndoCommand(parts, name, value));
+//    QETUtils::Lock lock(mIgnoreElementPropertyChanges);
+//    QVariant value = mUserPropertiesEditor->property(name)->m_value;
+//    undoStack().push(new AddUserPropertyUndoCommand(parts, name, value));
 }
 
 void ElementItemEditor::userPropertyRemoved(const QString& name)
 {
-    auto parts = currentParts();
-    if (parts.isEmpty())
-        return;
+//    auto parts = currentParts();
+//    if (parts.isEmpty())
+//        return;
 
-    QETUtils::Lock lock(mIgnoreElementPropertyChanges);
-    undoStack().push(new RemoveUserPropertyUndoCommand(parts, name));
+//    QETUtils::Lock lock(mIgnoreElementPropertyChanges);
+//    undoStack().push(new RemoveUserPropertyUndoCommand(parts, name));
 }
 
 void ElementItemEditor::userPropertyUpdated(const QString& name)

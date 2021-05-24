@@ -66,7 +66,7 @@ void ConductorPropertiesDialog::PropertiesDialog(Conductor *conductor,
 	ConductorPropertiesDialog cpd (conductor, parent);
 
 	if (cpd.exec() == QDialog::Rejected
-			|| cpd.properties() == conductor->properties()) return;
+            || cpd.properties() == conductor->properties()) return;
 
 	QVariant old_value, new_value;
 	old_value.setValue(conductor->properties());

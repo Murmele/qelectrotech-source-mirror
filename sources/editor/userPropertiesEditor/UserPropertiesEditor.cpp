@@ -1,10 +1,10 @@
 #include "UserPropertiesEditor.h"
 #include "GenericTableView/lib/generictableview.h"
 #include "GenericTableView/lib/generictablemodel.h"
+#include "GenericTableView/lib/generictabledelegator.h"
 #include "GenericTableView/lib/Wrapper/propertyselectionlineedit.h"
 #include "GenericTableView/lib/Wrapper/propertyselectionspinbox.h"
 #include "GenericTableView/lib/Wrapper/propertyselectiondoublespinbox.h"
-#include "GenericTableView/lib/wrappermanager.h"
 
 #include "../../properties/propertiesinterface.h"
 
@@ -14,6 +14,8 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QComboBox>
+#include <QSortFilterProxyModel>
+#include <QUndoStack>
 
 namespace  {
     /*!
@@ -48,20 +50,116 @@ namespace  {
         QLineEdit* le;
         QComboBox* cb;
     };
+
+class AddRemoveUserPropertiesModelUndoCommand: public QUndoCommand {
+public:
+	enum Action {
+		Remove,
+		Add
+	};
+	AddRemoveUserPropertiesModelUndoCommand(GenericTableModel* model, const Property& p, Action a):
+	mModel(model), mProperty(p), mAction(a){}
+
+	void redo() {
+		if (mAction== Action::Add) {
+			mModel->appendProperty(&mProperty);
+		} else if (mAction == Action::Remove) {
+			mModel->removeProperty(mProperty);
+		}
+	}
+
+	void undo() {
+		if (mAction== Action::Add) {
+			mModel->removeProperty(mProperty);
+		} else {
+			mModel->appendProperty(&mProperty);
+		}
+	}
+private:
+	GenericTableModel* mModel;
+	Property mProperty;
+	Action mAction;
+};
+
+class UpdateUserPropertiesModelUndoCommand: public QUndoCommand {
+public:
+	enum Action {
+		Remove,
+		Add
+	};
+	UpdateUserPropertiesModelUndoCommand(GenericTableModel* model, const Property& p):
+	mModel(model), mNewProperty(p){}
+
+	void redo() {
+		auto p = mModel->property(mNewProperty.m_name);
+		if (!p)
+			validProperty = false;
+		else {
+			validProperty = true;
+			mOldProperty = *p;
+		}
+		mModel->updateProperty(mNewProperty);
+	}
+
+	void undo() {
+		if (validProperty)
+			mModel->updateProperty(mOldProperty);
+	}
+private:
+	GenericTableModel* mModel;
+	Property mOldProperty;
+	Property mNewProperty;
+	bool validProperty{false};
+};
 }
 
-UserPropertiesEditor::UserPropertiesEditor(QWidget *parent): QWidget(parent)
+/*!
+ * \brief The ProjectElementUserPropertiesProxy class
+ * Proxy to show only the name and the value of the property. Otherwise also the datatype and the required flag are shown
+ */
+class LimitNameValueProxy: public QSortFilterProxyModel
+{
+public:
+    LimitNameValueProxy(QObject *parent = nullptr): QSortFilterProxyModel(parent) {}
+    bool filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const  override {
+        Q_UNUSED(source_parent);
+        if (source_column <= 1)
+            return true;
+        return false;
+    }
+
+};
+
+UserPropertiesEditor::UserPropertiesEditor(QWidget *parent, bool LimitNameValue, QUndoStack* stack): QWidget(parent), mUndoStack(stack)
 {
     setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Expanding);
 
 
     mUserPropertiesTableView = new GenericTableView(this);
-    mUserPropertiesModel = new GenericTableModel(mUserPropertiesTableView);
-    QStringList header = {tr("Name"), tr("Value")};
+    if (LimitNameValue) {
+        auto proxy = new LimitNameValueProxy(mUserPropertiesTableView);
+        mUserPropertiesModel = new GenericTableModel(proxy);
+        proxy->setSourceModel(mUserPropertiesModel);
+        mUserPropertiesTableView->setModel(proxy);
+    } else {
+        mUserPropertiesModel = new GenericTableModel(mUserPropertiesTableView);
+        mUserPropertiesTableView->setModel(mUserPropertiesModel);
+    }
+    mUserPropertiesDelegator = new GenericTableDelegator(mUserPropertiesTableView);
+    mUserPropertiesTableView->setItemDelegate(mUserPropertiesDelegator);
+
+    QStringList header = {tr("Name"), tr("Value"), tr("Datatype"), tr("Required")};
     mUserPropertiesModel->setHeader(header);
-    mUserPropertiesTableView->setModel(mUserPropertiesModel);
+
+	QHBoxLayout* h = new QHBoxLayout();
+	mAdd = new QPushButton(tr("Add"), this);
+	h->addWidget(mAdd);
+	mRemove = new QPushButton(tr("Remove"), this);
+	h->addWidget(mRemove);
+	h->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
     QVBoxLayout* l = new QVBoxLayout();
+	l->addLayout(h);
     l->addWidget(mUserPropertiesTableView);
 
     setLayout(l);
@@ -69,26 +167,29 @@ UserPropertiesEditor::UserPropertiesEditor(QWidget *parent): QWidget(parent)
     connect(mUserPropertiesModel, &GenericTableModel::propertyAdded, this, &UserPropertiesEditor::propertyAdded);
     connect(mUserPropertiesModel, &GenericTableModel::propertyRemoved, this, &UserPropertiesEditor::propertyRemoved);
     connect(mUserPropertiesModel, &GenericTableModel::propertyUpdated, this, &UserPropertiesEditor::propertyUpdated);
+	connect(mAdd, &QPushButton::clicked, this, QOverload<>::of(&UserPropertiesEditor::addProperty));
+	connect(mRemove, &QPushButton::clicked, this, &UserPropertiesEditor::removeSelectedProperty);
+
 
     for (auto prop: PropertiesInterface::supportedDatatypes())
-        addDatatype(prop);
+		registerDatatype(prop);
 }
 
-void UserPropertiesEditor::addDatatype(const QString& datatype)
+void UserPropertiesEditor::registerDatatype(const QString& datatype)
 {
-    if (WrapperManager::instance()->wrapperWidget(datatype))
+    if (mUserPropertiesDelegator->wrapperWidget(datatype))
         return; // Datatype is already linked to a Wrapper, so no need to do it again
 
     if (datatype == PropertiesInterface::stringS)
-        WrapperManager::instance()->addWrapperWidget(datatype, QSharedPointer<PropertySelectionWrapper>(new PropertySelectionLineEdit(this)));
+        mUserPropertiesDelegator->registerWrapperWidget(datatype, QSharedPointer<PropertySelectionWrapper>(new PropertySelectionLineEdit(this)));
     else if (datatype == PropertiesInterface::integerS)
-        WrapperManager::instance()->addWrapperWidget(datatype, QSharedPointer<PropertySelectionWrapper>(new PropertySelectionSpinBox(this)));
+        mUserPropertiesDelegator->registerWrapperWidget(datatype, QSharedPointer<PropertySelectionWrapper>(new PropertySelectionSpinBox(this)));
     else if (datatype == PropertiesInterface::doubleS)
-        WrapperManager::instance()->addWrapperWidget(datatype, QSharedPointer<PropertySelectionWrapper>(new PropertySelectionDoubleSpinBox(this)));
+        mUserPropertiesDelegator->registerWrapperWidget(datatype, QSharedPointer<PropertySelectionWrapper>(new PropertySelectionDoubleSpinBox(this)));
 //    else if (datatype == PropertiesInterface::colorS)
-//              WrapperManager::instance()->addWrapperWidget(datatype, QSharedPointer<PropertySelectionWrapper>(new PropertySelectionColor(this)));
+//              WrapperManager::instance()->registerWrapperWidget(datatype, QSharedPointer<PropertySelectionWrapper>(new PropertySelectionColor(this)));
 //    else if (datatype == PropertiesInterface::boolS)
-//              WrapperManager::instance()->addWrapperWidget(datatype, QSharedPointer<PropertySelectionWrapper>(new PropertySelectionCheckBox(this)));
+//              WrapperManager::instance()->registerWrapperWidget(datatype, QSharedPointer<PropertySelectionWrapper>(new PropertySelectionCheckBox(this)));
 }
 
 void UserPropertiesEditor::clearModel()
@@ -104,7 +205,16 @@ void UserPropertiesEditor::addProperty()
 
     QString name = dialog.name();
     QString datatype = dialog.datatype();
-    mUserPropertiesModel->appendProperty(new Property(name, datatype));
+
+	auto p = Property(name, datatype);
+	auto undoCommand = new AddRemoveUserPropertiesModelUndoCommand(mUserPropertiesModel, p, AddRemoveUserPropertiesModelUndoCommand::Add);
+
+	if (mUndoStack)
+		mUndoStack->push(undoCommand);
+	else {
+		QUndoStack stack; // Dummy stack to execute the undo command, but no undo is possible
+		stack.push(undoCommand);
+	}
 }
 
 void UserPropertiesEditor::addProperty(const QString& name, const QVariant& value)
@@ -135,7 +245,18 @@ void UserPropertiesEditor::setProperties(QHashIterator<QString, QVariant>& itera
 
 void UserPropertiesEditor::removeSelectedProperty()
 {
-    mUserPropertiesModel->removeProperty(mUserPropertiesTableView->currentIndex().row());
+
+	auto* p = mUserPropertiesModel->property(mUserPropertiesTableView->currentIndex().row());
+	if (!p)
+		return;
+	auto undoCommand = new AddRemoveUserPropertiesModelUndoCommand(mUserPropertiesModel, *p, AddRemoveUserPropertiesModelUndoCommand::Remove);
+
+	if (mUndoStack)
+		mUndoStack->push(undoCommand);
+	else {
+		QUndoStack stack; // Dummy stack to execute the undo command, but no undo is possible
+		stack.push(undoCommand);
+	}
 }
 
 void UserPropertiesEditor::updateProperty(const QString& key, const QVariant& value)
@@ -154,4 +275,10 @@ const Property* UserPropertiesEditor::property(const QString& name) {
 const QVector<Property*> UserPropertiesEditor::properties()
 {
     return mUserPropertiesModel->properties();
+}
+
+void UserPropertiesEditor::setProxy(QSortFilterProxyModel *model)
+{
+	model->setSourceModel(mUserPropertiesModel);
+	mUserPropertiesTableView->setModel(model);
 }

@@ -19,6 +19,8 @@
 #define PROJECTCONFIGPAGES_H
 #include "configpage.h"
 
+#include <QUndoStack>
+
 #include "editor/userPropertiesEditor/GenericTableView/lib/property.h"
 
 class QLabel;
@@ -33,8 +35,7 @@ class SelectAutonumW;
 class FolioAutonumberingW;
 class FormulaAutonumberingW;
 class AutoNumberingManagementW;
-class GenericTableView;
-class GenericTableModel;
+class UserPropertiesEditor;
 
 /**
 	@brief The ProjectConfigPage class
@@ -193,9 +194,13 @@ protected:
 	virtual void adjustReadOnly() override;
 
 private:
+	bool eventFilter(QObject *object, QEvent *event) override;
+
+private:
     QVector<Property> mDefaultProperties;
-    GenericTableView* mPropertiesView{nullptr};
-    GenericTableModel* mPropertiesModel{nullptr};
+	UserPropertiesEditor* mElementPropertyEditor{nullptr};
+	UserPropertiesEditor* mTerminalPropertyEditor{nullptr};
+	QUndoStack mUndoStack{nullptr};
 };
 
 #endif

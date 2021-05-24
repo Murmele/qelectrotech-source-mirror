@@ -174,9 +174,14 @@ QVariant PropertiesInterface::userProperty(const QString& key) const
     return properties[key];
 }
 
-const QHashIterator<QString, QVariant> PropertiesInterface::userProperties() const
+const QHashIterator<QString, QVariant> PropertiesInterface::userPropertiesIterator() const
 {
     return QHashIterator<QString, QVariant>(properties);
+}
+
+const QHash<QString, QVariant>& PropertiesInterface::userPropertiesHash() const
+{
+    return properties;
 }
 
 void PropertiesInterface::propertiesToXml(QDomElement& e) const

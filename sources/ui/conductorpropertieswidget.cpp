@@ -21,6 +21,8 @@
 #include "../qetapp.h"
 #include "../qtextorientationspinboxwidget.h"
 #include "ui_conductorpropertieswidget.h"
+#include "../editor/userPropertiesEditor/UserPropertiesEditor.h"
+#include "../editor/userPropertiesEditor/GenericTableView/lib/property.h"
 
 /**
 	@brief ConductorPropertiesWidget::ConductorPropertiesWidget
@@ -109,6 +111,9 @@ void ConductorPropertiesWidget::setProperties(
 	m_horiz_select -> setValue (m_properties.horiz_rotate_text);
 
 	setConductorType(m_properties.type);
+    auto it = properties.userPropertiesIterator();
+    mUserProperties->setProperties(it);
+
 	updatePreview(false);
 }
 
@@ -149,6 +154,10 @@ ConductorProperties ConductorPropertiesWidget::properties() const
 	properties_.singleLineProperties.hasNeutral = ui -> m_neutral_cb -> isChecked();
 	properties_.singleLineProperties.is_pen     = ui -> m_pen_cb -> isChecked();
 	properties_.singleLineProperties.setPhasesCount(ui -> m_phase_cb -> isChecked() ? ui -> m_phase_sb -> value() : 0);
+
+    for (auto p: mUserProperties->properties()) {
+       properties_.addUserProperty(p->m_name, p->m_value);
+    }
 
 	return properties_;
 }
@@ -226,6 +235,8 @@ QPushButton *ConductorPropertiesWidget::editAutonumPushButton() const
 */
 void ConductorPropertiesWidget::initWidget()
 {
+    mUserProperties = new UserPropertiesEditor(this, true, &mUndoStack);
+    ui->tabWidget->addTab(mUserProperties, tr("User Properties"));
 	m_verti_select = QETApp::createTextOrientationSpinBoxWidget();
 	ui -> m_text_angle_gl -> addWidget(m_verti_select, 2, 0, Qt::AlignHCenter);
 	m_horiz_select = QETApp::createTextOrientationSpinBoxWidget();

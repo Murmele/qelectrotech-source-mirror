@@ -30,11 +30,10 @@
 	@param new_info : new info of element
 	@param parent
 */
-ChangeElementInformationCommand::ChangeElementInformationCommand(
-		Element *elmt,
-		DiagramContext &old_info,
-		DiagramContext &new_info,
-		QUndoCommand *parent) :
+ChangeElementInformationCommand::ChangeElementInformationCommand(Element *elmt,
+        DiagramContext &old_info,
+        DiagramContext &new_info,
+        QUndoCommand *parent) :
 	QUndoCommand (parent)
 {
 	m_map.insert(QPointer<Element>(elmt), qMakePair(old_info, new_info));

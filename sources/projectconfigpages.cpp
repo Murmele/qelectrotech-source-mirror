@@ -33,8 +33,9 @@
 #include "qetinformation.h"
 #include "qetxml.h"
 
+#include "properties/propertiesinterface.h"
+#include "editor/userPropertiesEditor/UserPropertiesEditor.h"
 #include "editor/userPropertiesEditor/GenericTableView/lib/generictablemodel.h"
-#include "editor/userPropertiesEditor/GenericTableView/lib/generictableview.h"
 
 //#include "ui_autonumberingmanagementw.h"
 
@@ -663,36 +664,8 @@ void ProjectAutoNumConfigPage::changeToTab(int i)
 }
 
 //---------------------------------------------------------------------------//
-// ProjectAutoNumConfigPage                                                  //
+// ProjectElementPropertiesPage                                                  //
 //---------------------------------------------------------------------------//
-class ElementPropertyModel: public GenericTableModel
-{
-public:
-    ElementPropertyModel(Property& property)
-    {
-        m_header.append({tr("Name"), tr("Datatype"), tr("Default Value")});
-
-
-        emit headerDataChanged(Qt::Orientation::Horizontal, 0, m_header.length() - 1);
-    }
-
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override
-    {
-        return 3;
-    }
-
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
-    {
-        if (index.column() == 2)
-        return GenericTableModel::data(index, role);
-    }
-
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override
-    {
-
-    }
-private:
-};
 
 ProjectElementPropertiesPage::ProjectElementPropertiesPage (QETProject *project,
                             QWidget *parent) :
@@ -700,11 +673,31 @@ ProjectElementPropertiesPage::ProjectElementPropertiesPage (QETProject *project,
 {
     initWidgets();
     readValuesFromProject();
+	installEventFilter(this);
 
-    for (auto key: QETInformation::elementEditorElementInfoKeys()) {
-        Property p(key, QETXML::stringS);
-        mDefaultProperties.append(p);
-    }
+//    for (auto key: QETInformation::elementEditorElementInfoKeys()) {
+//		Property* p = new Property(key, QETXML::stringS);
+//		//mDefaultProperties.append(p);
+//		mPropertiesModel->appendProperty(p);
+//    }
+}
+
+bool ProjectElementPropertiesPage::eventFilter(QObject *object, QEvent *event)
+{
+	if (event->type() == QEvent::KeyPress) {
+		QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+		if (keyEvent->modifiers() & Qt::Modifier::CTRL) {
+			if (keyEvent->key() == Qt::Key_Z) {
+				// Special tab handling
+				mUndoStack.undo();
+				return true;
+			} else if (keyEvent->key() == Qt::Key_Y) {
+				mUndoStack.redo();
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 QString ProjectElementPropertiesPage::title() const
@@ -719,27 +712,32 @@ QIcon ProjectElementPropertiesPage::icon() const
 
 void ProjectElementPropertiesPage::applyProjectConf() {
 
+    QHash<QString, UserElementProperty> h;
+    for (auto p: mElementPropertyEditor->properties()) {
+        h.insert(p->m_name, UserElementProperty(p->m_value));
+    }
+    project()->setDefaultUserElementProperties(h);
+
+    QHash<QString, TerminalProperty> ht;
+    for (auto p: mTerminalPropertyEditor->properties()) {
+        ht.insert(p->m_name, TerminalProperty(p->m_value));
+    }
+    project()->setDefaultUserTerminalProperties(ht);
 }
 
 void ProjectElementPropertiesPage::initWidgets()
 {
-    mPropertiesView = new GenericTableView(this);
-    mPropertiesModel = new GenericTableModel(mPropertiesView);
-    QStringList header = {tr("Name"), tr("Default Value")};
-    mPropertiesModel->setHeader(header);
-    mPropertiesView->setModel(mPropertiesModel);
+    mElementPropertyEditor = new UserPropertiesEditor(this, false, &mUndoStack);
 
     QVBoxLayout* l = new QVBoxLayout();
-    l->addWidget(mPropertiesView);
+	l->addWidget(new QLabel(tr("Default Item Properties")));
+	l->addWidget(mElementPropertyEditor);
+	l->addWidget(new QLabel(tr("Default Terminal Properties")));
+
+    mTerminalPropertyEditor = new UserPropertiesEditor(this, false, &mUndoStack);
+	l->addWidget(mTerminalPropertyEditor);
 
     setLayout(l);
-
-//    connect(mUserPropertiesModel, &GenericTableModel::propertyAdded, this, &UserPropertiesEditor::propertyAdded);
-//    connect(mUserPropertiesModel, &GenericTableModel::propertyRemoved, this, &UserPropertiesEditor::propertyRemoved);
-//    connect(mUserPropertiesModel, &GenericTableModel::propertyUpdated, this, &UserPropertiesEditor::propertyUpdated);
-
-//    for (auto prop: PropertiesInterface::supportedDatatypes())
-//        addDatatype(prop);
 }
 
 void ProjectElementPropertiesPage::initLayout()
@@ -747,7 +745,16 @@ void ProjectElementPropertiesPage::initLayout()
 
 void ProjectElementPropertiesPage::readValuesFromProject()
 {
+	auto p = project()->defaultUserElementProperties();
 
+	QHash<QString, UserElementProperty>::iterator i;
+	for (i = p.begin(); i != p.end(); ++i)
+		mElementPropertyEditor->addProperty(i.key(), i.value().value());
+
+	auto t = project()->defaultUserTerminalProperties();
+	QHash<QString, TerminalProperty>::iterator j;
+	for (j = t.begin(); j != t.end(); ++j)
+		mTerminalPropertyEditor->addProperty(j.key(), j.value().value());
 }
 
 void ProjectElementPropertiesPage::adjustReadOnly()

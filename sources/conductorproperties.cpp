@@ -810,6 +810,11 @@ ConductorProperties ConductorProperties::defaultProperties()
 	return(def);
 }
 
+void ConductorProperties::addUserProperty(const QString& name, const QVariant& value)
+{
+    PropertiesInterface::setUserProperty(name, value);
+}
+
 /**
 	@brief ConductorProperties::operator ==
 	@param other
@@ -841,7 +846,8 @@ bool ConductorProperties::operator==(const ConductorProperties &other) const
 		other.singleLineProperties == singleLineProperties &&\
 		other.m_one_text_per_folio == m_one_text_per_folio &&\
 		other.m_horizontal_alignment == m_horizontal_alignment &&\
-		other.m_vertical_alignment == m_vertical_alignment
+        other.m_vertical_alignment == m_vertical_alignment && \
+        userPropertiesHash() == other.userPropertiesHash()
 	);
 }
 

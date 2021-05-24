@@ -21,9 +21,12 @@
 #include "../conductorproperties.h"
 
 #include <QWidget>
+#include <QUndoStack>
+
 class QTextOrientationSpinBoxWidget;
 class QComboBox;
 class QPushButton;
+class UserPropertiesEditor;
 
 namespace Ui {
 	class ConductorPropertiesWidget;
@@ -72,6 +75,9 @@ class ConductorPropertiesWidget : public QWidget
 		Ui::ConductorPropertiesWidget *ui;
 		ConductorProperties m_properties;
 		QTextOrientationSpinBoxWidget *m_verti_select, *m_horiz_select;
+        UserPropertiesEditor* mUserProperties{nullptr};
+        QUndoStack mUndoStack;
+
 };
 
 #endif // CONDUCTORPROPERTIESWIDGET_H

@@ -127,6 +127,7 @@ void SearchAndReplaceWorker::replaceElement(QList<Element *> list)
 		{
 			DiagramContext old_context;
 			DiagramContext new_context =  old_context = elmt->elementInformations();
+            elmt->diagram()->project()->defaultUserElementProperties();
 			for (QString key : QETInformation::elementInfoKeys())
 			{
 				new_context.addValue(key, applyChange(old_context.value(key).toString(),
@@ -135,6 +136,7 @@ void SearchAndReplaceWorker::replaceElement(QList<Element *> list)
 
 			if (old_context != new_context)
 			{
+                //TODO: UserElementProperties
 				ChangeElementInformationCommand *undo = new ChangeElementInformationCommand(elmt, old_context, new_context);
 				project_->undoStack()->push(undo);
 			}
