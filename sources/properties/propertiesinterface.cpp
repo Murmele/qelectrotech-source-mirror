@@ -34,85 +34,75 @@ namespace  {
     const QString userPropertiesS = "userProperties";
 }
 
-UserPropertiesUndoCommand::UserPropertiesUndoCommand(const QVector<PropertiesInterface*>& objs, QHash<QString, QVariant>& newProperties, QUndoCommand *parent):
+UserPropertiesUndoCommand::UserPropertiesUndoCommand(PropertiesInterface* obj, QHash<QString, QVariant>& newProperties, QUndoCommand *parent):
     QUndoCommand(parent),
-    mObjs(objs),
-    mNewProperties(newProperties)
+    mObj(obj)
 {
     // Find differences between old and new properties
     QHashIterator it(newProperties);
 
-    for (int i=0; i < objs.length(); i++) {
-        auto curHash = objs[i]->userPropertiesHash();
+    auto curHash = obj->userPropertiesHash();
 
-        QHash<QString, QVariant> added, removed, changed;
+    // find all changes
+    // find all added objects
+    while (it.hasNext()) {
+        it.next();
+        if (!curHash.contains(it.key()))
+            mAddedProperties.insert(it.key(), it.value());
+        else if (it.value() != curHash.value(it.key()) && it.value().isValid()) {
+            mOldChangedProperties.insert(it.key(), curHash.value(it.key()));
+            mNewChangedProperties.insert(it.key(), it.value());
+        } else {}
+    }
 
-        // find all changes
-        // find all added objects
-        while (it.hasNext()) {
-            it.next();
-            if (!curHash.contains(it.key()))
-                added.insert(it.key(), it.value());
-            else if (it.value() != curHash.value(it.key()) && it.value().isValid())
-                changed.insert(it.key(), curHash.value(it.key()));
-            else {}
-        }
-
-        // find all removed objects
-        QHashIterator itOld(curHash);
-        while (itOld.hasNext()) {
-            itOld.next();
-            if (!newProperties.contains(itOld.key()))
-                removed.insert(itOld.key(), itOld.value());
-        }
-
-        mAddedProperties.append(added);
-        mRemovedProperties.append(removed);
-        mChangedProperties.append(changed);
+    // find all removed objects
+    QHashIterator itOld(curHash);
+    while (itOld.hasNext()) {
+        itOld.next();
+        if (!newProperties.contains(itOld.key()))
+            mRemovedProperties.insert(itOld.key(), itOld.value());
     }
 }
 
 void UserPropertiesUndoCommand::redo() {
-    for (int i=0; i < mObjs.length(); i++) {
-        auto removeIterator = QHashIterator(mRemovedProperties[i]);
-        while(removeIterator.hasNext()) {
-            removeIterator.next();
-            mObjs[i]->removeProperty(removeIterator.key());
-        }
-
-        auto addIterator = QHashIterator(mAddedProperties[i]);
-        while(addIterator.hasNext()) {
-            addIterator.next();
-            mObjs[i]->setUserProperty(addIterator.key(), addIterator.value());
-        }
-
-        auto changeIterator = QHashIterator(mNewProperties);
-        while(changeIterator.hasNext()) {
-            changeIterator.next();
-            mObjs[i]->setUserProperty(changeIterator.key(), changeIterator.value());
-        }
-    }
+    update(true);
 }
 
 void UserPropertiesUndoCommand::undo() {
-    for (int i=0; i < mObjs.length(); i++) {
-        auto removeIterator = QHashIterator(mRemovedProperties[i]);
-        while(removeIterator.hasNext()) {
-            removeIterator.next();
-            mObjs[i]->setUserProperty(removeIterator.key(), removeIterator.value());
-        }
+    update(false);
+}
 
-        auto addIterator = QHashIterator(mAddedProperties[i]);
-        while(addIterator.hasNext()) {
-            addIterator.next();
-            mObjs[i]->removeProperty(addIterator.key());
-        }
+void UserPropertiesUndoCommand::update(bool redo)
+{
+    QHash<QString, QVariant> remove;
+    QHash<QString, QVariant>add;
+    QHash<QString, QVariant> change;
+    if (redo) {
+        remove = mRemovedProperties;
+        add = mAddedProperties;
+        change = mNewChangedProperties;
+    } else {
+        add = mRemovedProperties;
+        remove = mAddedProperties;
+        change = mOldChangedProperties;
+    }
 
-        auto changeIterator = QHashIterator(mChangedProperties[i]);
-        while(changeIterator.hasNext()) {
-            changeIterator.next();
-            mObjs[i]->setUserProperty(changeIterator.key(), changeIterator.value());
-        }
+    auto removeIterator = QHashIterator(remove);
+    while(removeIterator.hasNext()) {
+        removeIterator.next();
+        mObj->removeProperty(removeIterator.key());
+    }
+
+    auto addIterator = QHashIterator(add);
+    while(addIterator.hasNext()) {
+        addIterator.next();
+        mObj->setUserProperty(addIterator.key(), addIterator.value());
+    }
+
+    auto changeIterator = QHashIterator(change);
+    while(changeIterator.hasNext()) {
+        changeIterator.next();
+        mObj->setUserProperty(changeIterator.key(), changeIterator.value());
     }
 }
 

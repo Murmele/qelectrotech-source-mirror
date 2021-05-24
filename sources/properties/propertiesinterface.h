@@ -31,16 +31,17 @@ class PropertiesInterface;
 
 class UserPropertiesUndoCommand: public QUndoCommand {
 public:
-    UserPropertiesUndoCommand(const QVector<PropertiesInterface*>& objs, QHash<QString, QVariant>& newProperties, QUndoCommand* parent=nullptr);
+    UserPropertiesUndoCommand(PropertiesInterface *objs, QHash<QString, QVariant>& newProperties, QUndoCommand* parent=nullptr);
 
     void redo();
     void undo();
+    void update(bool redo);
 private:
-    QVector<PropertiesInterface*> mObjs;
-    QHash<QString, QVariant> mNewProperties;
-    QVector<QHash<QString, QVariant>> mChangedProperties;
-    QVector<QHash<QString, QVariant>> mAddedProperties;
-    QVector<QHash<QString, QVariant>> mRemovedProperties;
+    PropertiesInterface* mObj;
+    QHash<QString, QVariant> mNewChangedProperties;
+    QHash<QString, QVariant> mOldChangedProperties;
+    QHash<QString, QVariant> mAddedProperties;
+    QHash<QString, QVariant> mRemovedProperties;
 };
 
 /**

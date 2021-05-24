@@ -238,9 +238,9 @@ QUndoCommand* ShapeGraphicsItemPropertiesWidget::associatedUndo() const
             }
             if (m_shape->userPropertiesHash() != h) {
                 if (undo)
-                    new UserPropertiesUndoCommand({m_shape}, h, undo);
+                    new UserPropertiesUndoCommand(m_shape, h, undo);
                 else {
-                    undo = new UserPropertiesUndoCommand({m_shape}, h);
+                    undo = new UserPropertiesUndoCommand(m_shape, h);
                 }
             }
 
@@ -377,9 +377,9 @@ QUndoCommand* ShapeGraphicsItemPropertiesWidget::associatedUndo() const
         }
         if (m_shape->userPropertiesHash() != h) {
             if (undo)
-                new UserPropertiesUndoCommand({m_shape}, h, undo);
+                new UserPropertiesUndoCommand(m_shape, h, undo);
             else {
-                undo = new UserPropertiesUndoCommand({m_shape}, h);
+                undo = new UserPropertiesUndoCommand(m_shape, h);
             }
         }
 
@@ -390,18 +390,21 @@ QUndoCommand* ShapeGraphicsItemPropertiesWidget::associatedUndo() const
 			return nullptr;
 		}
     } else {
+
+        QUndoCommand *parent_undo = nullptr;
         // No live mode, but multiple shapes
-        QHash<QString, QVariant> h;
-        for (auto p: mUserPropertiesEditor->properties()) {
-           h.insert(p.m_name, p.m_value);
-        }
-        if (m_shape->userPropertiesHash() != h) {
-            if (undo)
-                new UserPropertiesUndoCommand({m_shape}, h, undo);
-            else {
-                undo = new UserPropertiesUndoCommand({m_shape}, h);
+        for (auto shape: m_shapes_list) {
+            QHash<QString, QVariant> h;
+            for (auto p: mUserPropertiesEditor->properties()) {
+               h.insert(p.m_name, p.m_value);
+            }
+            if (shape->userPropertiesHash() != h) {
+                if (!parent_undo)
+                    parent_undo = new QUndoCommand(tr("Modifier une forme simple"));
+                new UserPropertiesUndoCommand(shape, h, parent_undo);
             }
         }
+        return parent_undo;
     }
 	return nullptr;
 }
