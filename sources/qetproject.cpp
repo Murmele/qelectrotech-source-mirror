@@ -1518,10 +1518,11 @@ void QETProject::readDefaultPropertiesXml(QDomDocument &xml_project)
 	default_conductor_properties_  = ConductorProperties:: defaultProperties();
 	m_default_report_properties	   = ReportProperties::	defaultProperties();
 	m_default_xref_properties	   = XRefProperties::	  defaultProperties();
+    m_default_terminal_properties  = TerminalProperty::defaultProperties();
 	m_default_user_element_properties = UserElementProperty::defaultProperties();
 
 		//Read values indicate in project
-	QDomElement border_elmt, titleblock_elmt, conductors_elmt, report_elmt, xref_elmt, conds_autonums, folio_autonums, element_autonums;
+    QDomElement border_elmt, titleblock_elmt, conductors_elmt, report_elmt, xref_elmt, conds_autonums, folio_autonums, element_autonums, element_properties, terminal_properties;
 
 	for (QDomNode child = newdiagrams_elmt.firstChild() ; !child.isNull() ; child = child.nextSibling())
 	{
@@ -1544,6 +1545,10 @@ void QETProject::readDefaultPropertiesXml(QDomDocument &xml_project)
 			folio_autonums = child_elmt;
 		else if (child_elmt.tagName()== "element_autonums")
 			element_autonums = child_elmt;
+        else if (child_elmt.tagName() == "element_properties")
+            element_properties = child_elmt;
+        else if (child_elmt.tagName() == "terminal_properties")
+            terminal_properties = child_elmt;
 	}
 
 		// size, titleblock, conductor, report, conductor autonum, folio autonum, element autonum
@@ -1551,6 +1556,8 @@ void QETProject::readDefaultPropertiesXml(QDomDocument &xml_project)
 	if (!titleblock_elmt.isNull()) default_titleblock_properties_.fromXml(titleblock_elmt);
 	if (!conductors_elmt.isNull()) default_conductor_properties_.fromXml(conductors_elmt);
 	if (!report_elmt.isNull())	   setDefaultReportProperties(report_elmt.attribute("label"));
+    if (!element_properties.isNull()) m_default_user_element_properties.fromXml(element_properties);
+    if (!terminal_properties.isNull()) m_default_terminal_properties.fromXml(terminal_properties);
 	if (!xref_elmt.isNull())
 	{
 		foreach(QDomElement elmt, QET::findInDomElement(xref_elmt, "xref"))

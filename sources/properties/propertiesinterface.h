@@ -115,6 +115,31 @@ class PropertiesInterface
      */
     bool existUserProperty(const QString& key) const;
 
+    class Property {
+    public:
+        Property() {};
+        Property(QString name, QString datatype, QVariant value): m_name(name), m_datatype(datatype), m_value(value) {
+            if (name != "")
+                m_valid = true;
+        }
+        void setValue(QVariant value) {m_value = value;}
+        QVariant value() {return m_value;}
+        operator bool() {return m_valid;}
+    private:
+        QVariant m_value;
+        QString m_name;
+        /*!
+         * \brief datatype
+         * custom datatype. Must not be a datatype like int, double, QString ...
+         * but can be also "lenght", "temperature", ...
+         * It determines which widget is used in the GenericaTableView to edit the value.
+         * This has the benefit, that parameters of same type for example int, can be
+         * modified by different datatypes
+         */
+        QString m_datatype;
+        bool m_valid{false};
+    };
+
     /*!
      * \brief userProperty
      * Returns the value of a user property with key \p key

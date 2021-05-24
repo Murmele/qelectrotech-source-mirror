@@ -674,12 +674,6 @@ ProjectElementPropertiesPage::ProjectElementPropertiesPage (QETProject *project,
     initWidgets();
     readValuesFromProject();
 	installEventFilter(this);
-
-//    for (auto key: QETInformation::elementEditorElementInfoKeys()) {
-//		Property* p = new Property(key, QETXML::stringS);
-//		//mDefaultProperties.append(p);
-//		mPropertiesModel->appendProperty(p);
-//    }
 }
 
 bool ProjectElementPropertiesPage::eventFilter(QObject *object, QEvent *event)

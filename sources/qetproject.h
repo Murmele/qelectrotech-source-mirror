@@ -265,7 +265,7 @@ class QETProject : public QObject
 			/// Default xref properties
 		QHash <QString, XRefProperties> m_default_xref_properties = XRefProperties::defaultProperties();
 			/// Default user properties of an element
-		QHash <QString, UserElementProperty> m_default_user_element_properties = UserElementProperty::defaultProperties();
+        QHash <QString, QVariant> m_default_user_element_properties = UserElementProperty::defaultProperties();
 
 		QHash <QString, TerminalProperty> m_default_terminal_properties = TerminalProperty::defaultProperties();
 		/// Embedded title block templates collection
