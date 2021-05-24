@@ -38,6 +38,7 @@
 */
 QetShapeItem::QetShapeItem(QPointF p1, QPointF p2, ShapeType type, QGraphicsItem *parent) :
 	QetGraphicsItem(parent),
+    PropertiesInterface(QStringLiteral("shape")),
 	m_shapeType(type),
 	m_P1 (p1),
 	m_P2 (p2),
@@ -843,7 +844,7 @@ void QetShapeItem::handlerMouseReleaseEvent()
 	@param e element where is stored this item
 	@return true if load success
 */
-bool QetShapeItem::fromXml(const QDomElement &e)
+bool QetShapeItem::fromXmlPriv (const QDomElement &e)
 {
 	if (e.tagName() != "shape") return (false);
 
@@ -857,11 +858,11 @@ bool QetShapeItem::fromXml(const QDomElement &e)
 	m_shapeType = QetShapeItem::ShapeType(me.keysToValue(type.toStdString().data()));
 
 	if (m_shapeType != Polygon)
-	{
-		m_P1.setX(e.attribute("x1", nullptr).toDouble());
-		m_P1.setY(e.attribute("y1", nullptr).toDouble());
-		m_P2.setX(e.attribute("x2", nullptr).toDouble());
-		m_P2.setY(e.attribute("y2", nullptr).toDouble());
+    {
+        m_P1.setX(e.attribute("x1", nullptr).toDouble());
+        m_P1.setY(e.attribute("y1", nullptr).toDouble());
+        m_P2.setX(e.attribute("x2", nullptr).toDouble());
+        m_P2.setY(e.attribute("y2", nullptr).toDouble());
 
 		if (m_shapeType == Rectangle)
 		{
@@ -885,24 +886,24 @@ bool QetShapeItem::fromXml(const QDomElement &e)
 	@param document parent document xml
 	@return element xml where is write this item
 */
-QDomElement QetShapeItem::toXml(QDomDocument &document) const
+void QetShapeItem::toXmlPriv(QDomElement& e) const
 {
-	QDomElement result = document.createElement("shape");
+    QDomDocument document = e.ownerDocument();
 
 		//write some attribute
 	QMetaEnum me = metaObject()->enumerator(metaObject()->indexOfEnumerator("ShapeType"));
-	result.setAttribute("type", me.valueToKey(m_shapeType));
-	result.appendChild(QETXML::penToXml(document, m_pen));
-	result.appendChild(QETXML::brushToXml(document, m_brush));
-	result.setAttribute("is_movable", bool(is_movable_));
-	result.setAttribute("closed", bool(m_closed));
+    e.setAttribute("type", me.valueToKey(m_shapeType));
+    e.appendChild(QETXML::penToXml(document, m_pen));
+    e.appendChild(QETXML::brushToXml(document, m_brush));
+    e.setAttribute("is_movable", bool(is_movable_));
+    e.setAttribute("closed", bool(m_closed));
 
 	if (m_shapeType != Polygon)
 	{
-		result.setAttribute("x1", QString::number(mapToScene(m_P1).x()));
-		result.setAttribute("y1", QString::number(mapToScene(m_P1).y()));
-		result.setAttribute("x2", QString::number(mapToScene(m_P2).x()));
-		result.setAttribute("y2", QString::number(mapToScene(m_P2).y()));
+        e.setAttribute("x1", QString::number(mapToScene(m_P1).x()));
+        e.setAttribute("y1", QString::number(mapToScene(m_P1).y()));
+        e.setAttribute("x2", QString::number(mapToScene(m_P2).x()));
+        e.setAttribute("y2", QString::number(mapToScene(m_P2).y()));
 
 		if (m_shapeType == Rectangle)
 		{
@@ -917,8 +918,8 @@ QDomElement QetShapeItem::toXml(QDomDocument &document) const
 				y = rect.height()/2;
 			}
 
-			result.setAttribute("rx", QString::number(m_xRadius));
-			result.setAttribute("ry", QString::number(m_yRadius));
+            e.setAttribute("rx", QString::number(m_xRadius));
+            e.setAttribute("ry", QString::number(m_yRadius));
 		}
 	}
 	else
@@ -932,11 +933,9 @@ QDomElement QetShapeItem::toXml(QDomDocument &document) const
 			point.setAttribute("y", QString::number(pf.y()));
 			points.appendChild(point);
 		}
-		result.appendChild(points);
+        e.appendChild(points);
 	}
-	result.setAttribute("z", QString::number(this->zValue()));
-
-	return(result);
+    e.setAttribute("z", QString::number(this->zValue()));
 }
 
 /**

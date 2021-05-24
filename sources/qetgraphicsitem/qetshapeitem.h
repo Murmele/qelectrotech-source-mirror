@@ -20,6 +20,7 @@
 
 #include "../QetGraphicsItemModeler/qetgraphicshandleritem.h"
 #include "qetgraphicsitem.h"
+#include "../properties/propertiesinterface.h"
 
 #include <QPen>
 
@@ -33,7 +34,7 @@ class QAction;
 	this class is used to draw a basic shape (line, rectangle, ellipse)
 	into a diagram, that can be saved to .qet file.
 */
-class QetShapeItem : public QetGraphicsItem
+class QetShapeItem : public QetGraphicsItem, public PropertiesInterface
 {
 	Q_OBJECT
 
@@ -80,9 +81,10 @@ class QetShapeItem : public QetGraphicsItem
 		QBrush brush() const {return m_brush;}
 		void setBrush(const QBrush &brush);
 		ShapeType shapeType() const {return m_shapeType;}
-
-		virtual bool	    fromXml (const QDomElement &);
-		virtual QDomElement toXml (QDomDocument &document) const;
+        virtual void toSettings(QSettings &,
+                                const QString & = QString()) const override {};
+        virtual void fromSettings(QSettings &,
+                                  const QString & = QString()) override {};
 		virtual bool toDXF (const QString &filepath,const QPen &pen);
 
 		void editProperty() override;
@@ -137,6 +139,9 @@ class QetShapeItem : public QetGraphicsItem
 		void handlerMousePressEvent();
 		void handlerMouseMoveEvent(QGraphicsSceneMouseEvent *event);
 		void handlerMouseReleaseEvent();
+
+        virtual bool fromXmlPriv (const QDomElement &e) override;
+        virtual void toXmlPriv (QDomElement &e) const override;
 
 		///ATTRIBUTES
 	private:
