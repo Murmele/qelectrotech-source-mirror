@@ -23,6 +23,7 @@
 #include "../qetgraphicsitem/qetshapeitem.h"
 #include "../ui_shapegraphicsitempropertieswidget.h"
 #include "../editor/userPropertiesEditor/UserPropertiesEditor.h"
+#include "../editor/userPropertiesEditor/GenericTableView/lib/property.h"
 
 #include <QHash>
 
@@ -183,7 +184,7 @@ QUndoCommand* ShapeGraphicsItemPropertiesWidget::associatedUndo() const
 			//One shape is edited
 		if (m_shapes_list.isEmpty())
 		{
-			QPropertyUndoCommand *undo = nullptr;
+            QUndoCommand *undo = nullptr;
 
 			QPen old_pen = m_shape->pen();
 			QPen new_pen = old_pen;
@@ -231,9 +232,21 @@ QUndoCommand* ShapeGraphicsItemPropertiesWidget::associatedUndo() const
 				}
 			}
 
+            QHash<QString, QVariant> h;
+            for (auto p: mUserPropertiesEditor->properties()) {
+               h.insert(p.m_name, p.m_value);
+            }
+            if (m_shape->userPropertiesHash() != h) {
+                if (undo)
+                    new UserPropertiesUndoCommand({m_shape}, h, undo);
+                else {
+                    undo = new UserPropertiesUndoCommand({m_shape}, h);
+                }
+            }
+
 			return undo;
 		}
-		else if (!m_shapes_list.isEmpty()) //seberal shapes are edited
+        else if (!m_shapes_list.isEmpty()) //several shapes are edited
 		{
 			QUndoCommand *parent_undo = nullptr;
 			QetShapeItem *shape_ = m_shapes_list.first().data();
@@ -358,13 +371,38 @@ QUndoCommand* ShapeGraphicsItemPropertiesWidget::associatedUndo() const
 			QPropertyUndoCommand(m_shape, "close", m_shape->isClosed(), ui->m_close_polygon->isChecked(), undo);
 		}
 
+        QHash<QString, QVariant> h;
+        for (auto p: mUserPropertiesEditor->properties()) {
+           h.insert(p.m_name, p.m_value);
+        }
+        if (m_shape->userPropertiesHash() != h) {
+            if (undo)
+                new UserPropertiesUndoCommand({m_shape}, h, undo);
+            else {
+                undo = new UserPropertiesUndoCommand({m_shape}, h);
+            }
+        }
+
 		if (undo->childCount()) {
 			return undo;
 		} else {
 			delete undo;
 			return nullptr;
 		}
-	}
+    } else {
+        // No live mode, but multiple shapes
+        QHash<QString, QVariant> h;
+        for (auto p: mUserPropertiesEditor->properties()) {
+           h.insert(p.m_name, p.m_value);
+        }
+        if (m_shape->userPropertiesHash() != h) {
+            if (undo)
+                new UserPropertiesUndoCommand({m_shape}, h, undo);
+            else {
+                undo = new UserPropertiesUndoCommand({m_shape}, h);
+            }
+        }
+    }
 	return nullptr;
 }
 
@@ -401,6 +439,9 @@ void ShapeGraphicsItemPropertiesWidget::updateUi()
 
 		ui->m_lock_pos_cb->setChecked(!m_shape->isMovable());
 		ui->m_close_polygon->setChecked(m_shape->isClosed());
+
+        auto it = m_shape->userPropertiesIterator();
+        mUserPropertiesEditor->setProperties(it);
 	}
 	else if (m_shapes_list.size() >= 2)
 	{
@@ -461,6 +502,10 @@ void ShapeGraphicsItemPropertiesWidget::updateUi()
 
 		ui->m_lock_pos_cb->setChecked(false);
 		ui->m_close_polygon->setChecked(false);
+
+        // Use the userproperties of the first shape
+        auto it = m_shapes_list[0]->userPropertiesIterator();
+        mUserPropertiesEditor->setProperties(it);
 	}
 
 	setUpEditConnection();

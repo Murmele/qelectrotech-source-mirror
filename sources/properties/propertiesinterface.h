@@ -25,6 +25,23 @@
 #include <limits>
 #include "sources/qet.h"
 #include <QUuid>
+#include <QUndoCommand>
+
+class PropertiesInterface;
+
+class UserPropertiesUndoCommand: public QUndoCommand {
+public:
+    UserPropertiesUndoCommand(const QVector<PropertiesInterface*>& objs, QHash<QString, QVariant>& newProperties, QUndoCommand* parent=nullptr);
+
+    void redo();
+    void undo();
+private:
+    QVector<PropertiesInterface*> mObjs;
+    QHash<QString, QVariant> mNewProperties;
+    QVector<QHash<QString, QVariant>> mChangedProperties;
+    QVector<QHash<QString, QVariant>> mAddedProperties;
+    QVector<QHash<QString, QVariant>> mRemovedProperties;
+};
 
 /**
 	@brief The PropertiesInterface class
@@ -194,6 +211,8 @@ private:
 
     QHash<QString, QVariant> properties;
     QString mTagName{""};
+
+    friend UserPropertiesUndoCommand;
 };
 
 #endif // PROPERTIESINTERFACE_H

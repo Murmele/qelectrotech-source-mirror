@@ -156,7 +156,7 @@ ConductorProperties ConductorPropertiesWidget::properties() const
 	properties_.singleLineProperties.setPhasesCount(ui -> m_phase_cb -> isChecked() ? ui -> m_phase_sb -> value() : 0);
 
     for (auto p: mUserProperties->properties()) {
-       properties_.addUserProperty(p->m_name, p->m_value);
+       properties_.addUserProperty(p.m_name, p.m_value);
     }
 
 	return properties_;

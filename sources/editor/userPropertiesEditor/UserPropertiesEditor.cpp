@@ -62,7 +62,7 @@ public:
 
 	void redo() {
 		if (mAction== Action::Add) {
-			mModel->appendProperty(&mProperty);
+            mModel->appendProperty(mProperty);
 		} else if (mAction == Action::Remove) {
 			mModel->removeProperty(mProperty);
 		}
@@ -72,7 +72,7 @@ public:
 		if (mAction== Action::Add) {
 			mModel->removeProperty(mProperty);
 		} else {
-			mModel->appendProperty(&mProperty);
+            mModel->appendProperty(mProperty);
 		}
 	}
 private:
@@ -219,11 +219,11 @@ void UserPropertiesEditor::addProperty()
 
 void UserPropertiesEditor::addProperty(const QString& name, const QVariant& value)
 {
-    Property* p = new Property();
-    p->m_name = name;
-    p->m_value = value;
-    p->m_datatype = PropertiesInterface::QVariantTypeToString(p->m_value);
-    p->m_required = false;
+    Property p;
+    p.m_name = name;
+    p.m_value = value;
+    p.m_datatype = PropertiesInterface::QVariantTypeToString(p.m_value);
+    p.m_required = false;
     mUserPropertiesModel->appendProperty(p);
 }
 
@@ -272,7 +272,7 @@ const Property* UserPropertiesEditor::property(const QString& name) {
     return nullptr;
 }
 
-const QVector<Property*> UserPropertiesEditor::properties()
+const QVector<Property> UserPropertiesEditor::properties()
 {
     return mUserPropertiesModel->properties();
 }

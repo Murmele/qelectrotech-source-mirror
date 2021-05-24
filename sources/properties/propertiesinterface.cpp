@@ -34,6 +34,88 @@ namespace  {
     const QString userPropertiesS = "userProperties";
 }
 
+UserPropertiesUndoCommand::UserPropertiesUndoCommand(const QVector<PropertiesInterface*>& objs, QHash<QString, QVariant>& newProperties, QUndoCommand *parent):
+    QUndoCommand(parent),
+    mObjs(objs),
+    mNewProperties(newProperties)
+{
+    // Find differences between old and new properties
+    QHashIterator it(newProperties);
+
+    for (int i=0; i < objs.length(); i++) {
+        auto curHash = objs[i]->userPropertiesHash();
+
+        QHash<QString, QVariant> added, removed, changed;
+
+        // find all changes
+        // find all added objects
+        while (it.hasNext()) {
+            it.next();
+            if (!curHash.contains(it.key()))
+                added.insert(it.key(), it.value());
+            else if (it.value() != curHash.value(it.key()) && it.value().isValid())
+                changed.insert(it.key(), curHash.value(it.key()));
+            else {}
+        }
+
+        // find all removed objects
+        QHashIterator itOld(curHash);
+        while (itOld.hasNext()) {
+            itOld.next();
+            if (!newProperties.contains(itOld.key()))
+                removed.insert(itOld.key(), itOld.value());
+        }
+
+        mAddedProperties.append(added);
+        mRemovedProperties.append(removed);
+        mChangedProperties.append(changed);
+    }
+}
+
+void UserPropertiesUndoCommand::redo() {
+    for (int i=0; i < mObjs.length(); i++) {
+        auto removeIterator = QHashIterator(mRemovedProperties[i]);
+        while(removeIterator.hasNext()) {
+            removeIterator.next();
+            mObjs[i]->removeProperty(removeIterator.key());
+        }
+
+        auto addIterator = QHashIterator(mAddedProperties[i]);
+        while(addIterator.hasNext()) {
+            addIterator.next();
+            mObjs[i]->setUserProperty(addIterator.key(), addIterator.value());
+        }
+
+        auto changeIterator = QHashIterator(mNewProperties);
+        while(changeIterator.hasNext()) {
+            changeIterator.next();
+            mObjs[i]->setUserProperty(changeIterator.key(), changeIterator.value());
+        }
+    }
+}
+
+void UserPropertiesUndoCommand::undo() {
+    for (int i=0; i < mObjs.length(); i++) {
+        auto removeIterator = QHashIterator(mRemovedProperties[i]);
+        while(removeIterator.hasNext()) {
+            removeIterator.next();
+            mObjs[i]->setUserProperty(removeIterator.key(), removeIterator.value());
+        }
+
+        auto addIterator = QHashIterator(mAddedProperties[i]);
+        while(addIterator.hasNext()) {
+            addIterator.next();
+            mObjs[i]->removeProperty(addIterator.key());
+        }
+
+        auto changeIterator = QHashIterator(mChangedProperties[i]);
+        while(changeIterator.hasNext()) {
+            changeIterator.next();
+            mObjs[i]->setUserProperty(changeIterator.key(), changeIterator.value());
+        }
+    }
+}
+
 /**
 	@brief PropertiesInterface::PropertiesInterface
 */

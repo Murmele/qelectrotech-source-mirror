@@ -31,7 +31,7 @@ public:
     void removeSelectedProperty();
     void updateProperty(const QString& key, const QVariant& value);
     const Property* property(const QString& name);
-    const QVector<Property*> properties();
+    const QVector<Property> properties();
 	/*!
 	 * \brief setProxy
 	 * Put proxy between model and view

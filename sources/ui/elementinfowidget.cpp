@@ -113,7 +113,7 @@ QUndoCommand* ElementInfoWidget::associatedUndo() const
     QHash<QString, QVariant> newProperties;
     for (auto p: mEditor->properties())
     {
-        newProperties[p->m_name] = p->m_value;
+        newProperties[p.m_name] = p.m_value;
     }
 
     QHash<QString, QVariant> oldProperties;

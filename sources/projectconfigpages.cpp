@@ -714,13 +714,13 @@ void ProjectElementPropertiesPage::applyProjectConf() {
 
     QHash<QString, UserElementProperty> h;
     for (auto p: mElementPropertyEditor->properties()) {
-        h.insert(p->m_name, UserElementProperty(p->m_value));
+        h.insert(p.m_name, UserElementProperty(p.m_value));
     }
     project()->setDefaultUserElementProperties(h);
 
     QHash<QString, TerminalProperty> ht;
     for (auto p: mTerminalPropertyEditor->properties()) {
-        ht.insert(p->m_name, TerminalProperty(p->m_value));
+        ht.insert(p.m_name, TerminalProperty(p.m_value));
     }
     project()->setDefaultUserTerminalProperties(ht);
 }
